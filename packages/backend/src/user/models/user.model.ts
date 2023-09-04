@@ -1,6 +1,7 @@
 import mongoose from 'mongoose';
+import { BaseModel } from '../../config/base.model';
 
-export interface IUser {
+export interface IUser extends BaseModel {
   email: string;
   password: string;
 }

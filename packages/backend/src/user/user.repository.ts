@@ -3,10 +3,10 @@ import { type ICreateUser } from './user.types';
 
 export class UserRepository {
   async getOneUserByEmail (email: string) {
-    return await User.findOne({ email });
+    return User.findOne({ email });
   }
 
   async createUser (data: ICreateUser) {
-    return await User.create(data);
+    return User.create(data);
   }
 }
