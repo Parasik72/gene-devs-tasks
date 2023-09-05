@@ -63,3 +63,23 @@ export interface IUpdateTest {
 export interface IUpdateQuestion {
   title: string;
 }
+
+export interface IUserAnswer {
+  questionId: string;
+  selected: string[];
+}
+
+export interface ITestWithOptionsAndAnswers {
+  _id: ObjectId;
+  questions: {
+    _id: ObjectId;
+    options: ObjectId[]
+    answers: ObjectId[]
+  } [];
+}
+
+export interface ICreateAssessment {
+  test: ObjectId;
+  candidate: ObjectId;
+  score: number;
+}

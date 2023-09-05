@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { IQuestion, Question } from './question.model';
-import { IUser, User } from '../../user/models/user.model';
+import { User } from '../../user/models/user.model';
 import { BaseModel } from '../../config/base.model';
 import { ObjectId } from 'mongodb';
 

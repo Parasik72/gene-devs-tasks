@@ -114,3 +114,23 @@ export const getOneTestByIdAgg =
       }
     ]
   );
+
+
+export const getTestWithQuestionOptionsAndAnswersIdsAgg =
+  (testId: string) => (
+    [
+      {
+        $match: {
+          _id: new ObjectId(testId)
+        }
+      },
+      {
+        $lookup: {
+          from: 'questions',
+          localField: 'questions',
+          foreignField: '_id',
+          as: 'questions'
+        }
+      }
+    ]
+  );

@@ -10,10 +10,13 @@ import {
   ICreateTest, 
   IPrepareQuestionForCreation, 
   IUpdateQuestion, 
-  IUpdateTest
+  IUpdateTest,
+  IUserAnswer
 } from './test.types';
 import { IOption } from './models/option.model';
 import { IQuestion } from './models/question.model';
+import { ITest } from './models/test.model';
+import { IUser } from '../user/models/user.model';
 
 export class TestService {
   constructor(private readonly testRepository: TestRepository) {}
@@ -128,6 +131,55 @@ export class TestService {
 
   async updateOneQuestionById(data: IUpdateQuestion, questionId: string) {
     return this.testRepository.updateOneQuestionById(data, questionId);
+  }
+
+  async getAssessmentsByTestId(testId: string) {
+    return this.testRepository.getAssessmentsByTestId(testId);
+  }
+
+  async getAssessmentsByTestIdAndUserId(testId: string, userId: string) {
+    return this.testRepository.getAssessmentsByTestIdAndUserId(testId, userId);
+  }
+
+  async generateAssessment(testId: string, user: IUser, answers: IUserAnswer[]) {
+    const testWithOptionsAndAnswers = 
+      (await this.testRepository.getTestWithQuestionOptionsAndAnswersIds(testId))[0];
+    let score = 0;
+    let incorrectQuestions = 0;
+    const questionsPassed: Record<string, string> = {};
+    answers.forEach((answer) => {
+      if (questionsPassed[answer.questionId]) return;
+      const question = 
+        testWithOptionsAndAnswers.questions.find((item) => item._id.toHexString() === answer.questionId);
+      if (!question) return;
+      if (question.options.length === 0 || question.answers.length === 0) {
+        ++incorrectQuestions;
+        return;
+      }
+      if (answer.selected.length !== question.answers.length) return;
+      const answersPassed: Record<string, string> = {};
+      for (const selected of answer.selected) {
+        if (answersPassed[selected]) return;
+        const findAnswer = question.answers.find((item) => item._id.toHexString() === selected);
+        if (!findAnswer) return;
+        const answerId = findAnswer.toHexString();
+        answersPassed[answerId] = answerId;
+      }
+      const questionId = question._id.toHexString();
+      questionsPassed[questionId] = questionId;
+      ++score;
+    });
+    const precentageOfScore = 
+      (score / (testWithOptionsAndAnswers.questions.length - incorrectQuestions)) * 100;
+    return this.testRepository.createAssessment({
+      test: testWithOptionsAndAnswers._id,
+      candidate: user._id,
+      score: precentageOfScore
+    });
+  }
+
+  isUserTestCreator(test: ITest, user: IUser) {
+    return test.createdBy.toHexString() === user._id.toHexString();
   }
 
   isAnswerInQuestion(question: IQuestion, answerId: string) {

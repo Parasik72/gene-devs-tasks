@@ -1,4 +1,4 @@
-import { Question } from './models/question.model';
+import { IQuestion, Question } from './models/question.model';
 import { Test } from './models/test.model';
 import { 
   IBulkWriteAddAnswerToQuestion,
@@ -6,8 +6,10 @@ import {
   IBulkWriteAddQuestionToTest, 
   IBulkWriteCreateOption, 
   IBulkWriteCreateQuestion, 
+  ICreateAssessment, 
   ICreateOption, 
   ICreateTest, 
+  ITestWithOptionsAndAnswers, 
   IUpdateQuestion, 
   IUpdateTest
 } from './test.types';
@@ -16,8 +18,11 @@ import {
   getOneByIdAndQuestionTitleAgg, 
   getOneQuestionByIdAndOptionTitleAgg, 
   getOneQuestionByTitleAndTestIdAgg, 
-  getOneTestByIdAgg
+  getOneTestByIdAgg,
+  getTestWithQuestionOptionsAndAnswersIdsAgg
 } from './aggregations/test.aggregations';
+import { Assessment } from './models/assessment.model';
+import { getAssessmentByTestIdAgg, getAssessmentByTestIdAndUserIdAgg } from './aggregations/assessments.aggregations';
 
 export class TestRepository {
   async getAllTests() {
@@ -88,6 +93,7 @@ export class TestRepository {
 
   async deleteOneById(testId: string) {
     await Test.deleteOne({ _id: testId });
+    await Assessment.deleteMany({ test: testId });
   }
 
   async deleteOneQuestionByIdAndTestId(questionId: string, testId: string) {
@@ -135,11 +141,33 @@ export class TestRepository {
     );
   }
 
+  async getTestWithQuestionOptionsAndAnswersIds(testId: string): Promise<ITestWithOptionsAndAnswers[]> {
+    return Test.aggregate<ITestWithOptionsAndAnswers>(
+      getTestWithQuestionOptionsAndAnswersIdsAgg(testId)
+    );
+  }
+
   async updateOneById(data: IUpdateTest, testId: string) {
     return Test.updateOne({ _id: testId }, data);
   }
 
   async updateOneQuestionById(data: IUpdateQuestion, questionId: string) {
     return Question.updateOne({ _id: questionId }, data);
+  }
+
+  async createAssessment(data: ICreateAssessment) {
+    return Assessment.create(data);
+  }
+
+  async getAssessmentsByTestId(testId: string) {
+    return Assessment.aggregate(
+      getAssessmentByTestIdAgg(testId)
+    );
+  }
+
+  async getAssessmentsByTestIdAndUserId(testId: string, userId: string) {
+    return Assessment.aggregate(
+      getAssessmentByTestIdAndUserIdAgg(testId, userId)
+    );
   }
 }

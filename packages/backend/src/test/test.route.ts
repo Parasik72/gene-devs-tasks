@@ -14,12 +14,21 @@ import { updateQuestionValidator } from './validators/update-question.validator'
 import { getOneTestByIdValidator } from './validators/get-one-test-by-id.validator';
 import { addAnswerValidator } from './validators/add-answer.validator';
 import { deleteAnswerValidator } from './validators/delete-answer.validator';
+import { passTestValidator } from './validators/pass-test.validator';
+import { getAssessmentsValidator } from './validators/get-assessments.validator';
 
 const testsRouter = express();
 
 testsRouter.get(
   '/all',
   tryCatchController(testController.getAllTests.bind(testController))
+);
+
+testsRouter.get(
+  '/assessments/:testId',
+  isLogedIn,
+  getAssessmentsValidator,
+  tryCatchController(testController.getAssessments.bind(testController))
 );
 
 testsRouter.get(
@@ -73,6 +82,14 @@ testsRouter.post(
   isLogedIn,
   addAnswerValidator,
   tryCatchController(testController.addAnswer.bind(testController), 201)
+);
+
+testsRouter.post(
+  '/pass-test/:testId',
+  isLogedIn,
+  passTestValidator,
+  validateRequest,
+  tryCatchController(testController.passTest.bind(testController), 201)
 );
 
 testsRouter.delete(
