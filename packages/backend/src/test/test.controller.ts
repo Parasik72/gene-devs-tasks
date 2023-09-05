@@ -21,6 +21,9 @@ import { AddAnswerParams } from './params/add-answer.params';
 import { AddAnswerDto } from './dto/add-answer.dto';
 import { ObjectId } from 'mongodb';
 import { DeleteAnswerParams } from './params/delete-answer.params';
+import { PassTestParams } from './params/pass-test.params';
+import { PassTestDto } from './dto/pass-test.dto';
+import { GetAssessmentsParams } from './params/get-assessments.params';
 
 class TestController {
   constructor(
@@ -56,7 +59,7 @@ class TestController {
       throw new HttpException('The test was not found', 404);
     }
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test, user!)) {
       throw new HttpException('You cant update this test', 403);
     }
     if (req.body.title) {
@@ -78,7 +81,7 @@ class TestController {
       throw new HttpException('The test was not found', 404);
     }
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test, user!)) {
       throw new HttpException('You cant add questions to this test', 403);
     }
     const testWithQuestion = 
@@ -103,7 +106,7 @@ class TestController {
     }
     const test = await this.testService.getOneByQuestionId(question._id.toHexString());
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant add options to this question', 403);
     }
     const questionWithTitle = 
@@ -122,7 +125,7 @@ class TestController {
     }
     const test = await this.testService.getOneByQuestionId(question._id.toHexString());
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant add options to this question', 403);
     }
     const questionWithOption = 
@@ -150,7 +153,7 @@ class TestController {
     }
     const test = await this.testService.getOneByQuestionId(question._id.toHexString());
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant add options to this question', 403);
     }
     const questionByOptionId = 
@@ -179,7 +182,7 @@ class TestController {
     }
     const test = await this.testService.getOneByQuestionId(question._id.toHexString());
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant delete this option', 403);
     }
     await this.testService.deleteOneAnswerByIdAndQuestionId(
@@ -200,7 +203,7 @@ class TestController {
     }
     const test = await this.testService.getOneByQuestionId(question._id.toHexString());
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant delete this option', 403);
     }
     await this.testService.deleteOneOptionByIdAndQuestionId(
@@ -220,7 +223,7 @@ class TestController {
       throw new HttpException('The test was not found', 404);
     }
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test, user!)) {
       throw new HttpException('You cant delete this question', 403);
     }
     await this.testService.deleteOneQuestionByIdAndTestId(
@@ -236,11 +239,39 @@ class TestController {
       throw new HttpException('The test was not found', 404);
     }
     const user = await this.userService.getOneUserByEmail(req.user.email);
-    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+    if (!this.testService.isUserTestCreator(test, user!)) {
       throw new HttpException('You cant delete this test', 403);
     }
     await this.testService.deleteOneById(test._id.toHexString());
     return { message: 'The test has been deleted successfully!' };
+  }
+
+  async passTest(req: express.Request<PassTestParams, {}, PassTestDto>) {
+    const test = await this.testService.getOneById(req.params.testId);
+    if (!test) {
+      throw new HttpException('The test was not found', 404);
+    }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    return this.testService.generateAssessment(
+      test._id.toHexString(),
+      user!,
+      req.body.answers
+    );
+  }
+
+  async getAssessments(req: express.Request<GetAssessmentsParams>) {
+    const test = await this.testService.getOneById(req.params.testId);
+    if (!test) {
+      throw new HttpException('The test was not found', 404);
+    }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (this.testService.isUserTestCreator(test, user!)) {
+      return this.testService.getAssessmentsByTestId(test._id.toHexString());
+    }
+    return this.testService.getAssessmentsByTestIdAndUserId(
+      test._id.toHexString(),
+      user!._id.toHexString()
+    );
   }
 }
 

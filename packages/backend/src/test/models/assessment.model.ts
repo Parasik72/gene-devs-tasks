@@ -1,11 +1,12 @@
 import mongoose from 'mongoose';
-import { ITest, Test } from './test.model';
-import { IUser, User } from '../../user/models/user.model';
+import { Test } from './test.model';
+import { User } from '../../user/models/user.model';
 import { BaseModel } from '../../config/base.model';
+import { ObjectId } from 'mongodb';
 
 export interface IAssessment extends BaseModel {
-  test: ITest;
-  candidate: IUser;
+  test: ObjectId;
+  candidate: ObjectId;
   score: number;
 }
 
