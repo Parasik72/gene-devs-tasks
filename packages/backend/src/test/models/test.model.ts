@@ -2,12 +2,13 @@ import mongoose from 'mongoose';
 import { IQuestion, Question } from './question.model';
 import { IUser, User } from '../../user/models/user.model';
 import { BaseModel } from '../../config/base.model';
+import { ObjectId } from 'mongodb';
 
 export interface ITest extends BaseModel {
   title: string;
   description: string;
   questions: IQuestion[];
-  createdBy: IUser;
+  createdBy: ObjectId;
 }
 
 export const TestSchema = new mongoose.Schema<ITest>({

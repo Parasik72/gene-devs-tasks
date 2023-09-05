@@ -47,3 +47,19 @@ export interface IBulkWriteAddOptionToQuestion {
     update: { $push: { options: ObjectId; } }
   }
 }
+
+export interface IBulkWriteAddAnswerToQuestion {
+  updateOne: {
+    filter: { _id: ObjectId },
+    update: { $push: { answers: ObjectId; } }
+  }
+}
+
+export interface IUpdateTest {
+  title?: string;
+  description?: string;
+}
+
+export interface IUpdateQuestion {
+  title: string;
+}

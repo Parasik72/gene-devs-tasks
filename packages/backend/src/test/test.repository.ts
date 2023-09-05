@@ -1,19 +1,37 @@
 import { Question } from './models/question.model';
 import { Test } from './models/test.model';
 import { 
+  IBulkWriteAddAnswerToQuestion,
   IBulkWriteAddOptionToQuestion,
   IBulkWriteAddQuestionToTest, 
   IBulkWriteCreateOption, 
   IBulkWriteCreateQuestion, 
   ICreateOption, 
-  ICreateTest 
+  ICreateTest, 
+  IUpdateQuestion, 
+  IUpdateTest
 } from './test.types';
 import { Option } from './models/option.model';
-import { getOneByIdAndQuestionTitleAgg, getOneQuestionByIdAndOptionTitleAgg } from './aggregations/test.aggregations';
+import { 
+  getOneByIdAndQuestionTitleAgg, 
+  getOneQuestionByIdAndOptionTitleAgg, 
+  getOneQuestionByTitleAndTestIdAgg, 
+  getOneTestByIdAgg
+} from './aggregations/test.aggregations';
 
 export class TestRepository {
-  async getOneById(id: string) {
-    return Test.findById(id);
+  async getAllTests() {
+    return Test.find();
+  }
+
+  async getOneFullTestById(testId: string) {
+    return Test.aggregate(
+      getOneTestByIdAgg(testId)
+    );
+  }
+
+  async getOneById(testId: string) {
+    return Test.findById(testId);
   }
 
   async getOneByTitle(title: string) {
@@ -26,6 +44,10 @@ export class TestRepository {
 
   async getOneQuestionByOptionId(optionId: string) {
     return Question.findOne({ options: optionId });
+  }
+
+  async getOneQuestionByAnswerId(answerId: string) {
+    return Question.findOne({ answers: answerId });
   }
 
   async getOneByIdAndQuestionTitle(questionTitle: string, testId: string) {
@@ -46,6 +68,10 @@ export class TestRepository {
     return Question.aggregate(
       getOneQuestionByIdAndOptionTitleAgg(questionId, optionTitle)
     );
+  }
+
+  async getOneQuestionByIdAndOptionId(questionId: string, optionId: string) {
+    return Question.findOne({ _id: questionId, options: optionId });
   }
 
   async createOptions(data: IBulkWriteCreateOption[]) {
@@ -79,6 +105,13 @@ export class TestRepository {
     );
     await Option.deleteOne({ _id: optionId });
   }
+  
+  async deleteOneAnswerByIdAndQuestionId(answerId: string, questionId: string) {
+    await Question.updateOne(
+      { _id: questionId },
+      { $pull: { answers: answerId } }
+    );
+  }
 
   async addQuestionToTest(data: IBulkWriteAddQuestionToTest) {
     return Test.bulkWrite([data as any]);
@@ -88,7 +121,25 @@ export class TestRepository {
     return Question.bulkWrite([data as any]);
   }
 
+  async addAnswerToQuestion(data: IBulkWriteAddAnswerToQuestion) {
+    return Question.bulkWrite([data as any]);
+  }
+
   async getOneOptionById(optionId: string) {
     return Option.findById(optionId);
+  }
+
+  async getOneQuestionByTitleAndTestId(title: string, testId: string) {
+    return Test.aggregate(
+      getOneQuestionByTitleAndTestIdAgg(title, testId)
+    );
+  }
+
+  async updateOneById(data: IUpdateTest, testId: string) {
+    return Test.updateOne({ _id: testId }, data);
+  }
+
+  async updateOneQuestionById(data: IUpdateQuestion, questionId: string) {
+    return Question.updateOne({ _id: questionId }, data);
   }
 }

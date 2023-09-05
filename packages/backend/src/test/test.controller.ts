@@ -12,12 +12,33 @@ import { DeleteTestParams } from './params/delete-test.params';
 import { AddOptionParams } from './params/add-option.params';
 import { AddOptionDto } from './dto/add-option.dto';
 import { DeleteOptionParams } from './params/delete-option.params';
+import { UpdateTestParams } from './params/update-test.params';
+import { UpdateTestDto } from './dto/update-test.dto';
+import { UpdateQuestionParams } from './params/update-question.params';
+import { UpdateQuestionDto } from './dto/update-question.dto';
+import { GetOneTestByIdParams } from './params/get-one-test-by-id.params';
+import { AddAnswerParams } from './params/add-answer.params';
+import { AddAnswerDto } from './dto/add-answer.dto';
+import { ObjectId } from 'mongodb';
+import { DeleteAnswerParams } from './params/delete-answer.params';
 
 class TestController {
   constructor(
     private readonly testService: TestService,
     private readonly userService: UserService
   ) {}
+
+  async getAllTests() {
+    return this.testService.getAllTests();
+  }
+
+  async getOneTestById(req: express.Request<GetOneTestByIdParams>) {
+    const test = await this.testService.getOneById(req.params.testId);
+    if (!test) {
+      throw new HttpException('The test was not found', 404);
+    }
+    return this.testService.getOneFullTestById(test._id.toHexString());
+  }
 
   async createTest(req: express.Request<{}, {}, CreateTestDto>) {
     const user = await this.userService.getOneUserByEmail(req.user.email);
@@ -29,10 +50,36 @@ class TestController {
     return this.testService.createTest({ title, description, createdBy: user!._id });
   }
 
+  async updateTest(req: express.Request<UpdateTestParams, {}, UpdateTestDto>) {
+    const test = await this.testService.getOneById(req.params.testId);
+    if (!test) {
+      throw new HttpException('The test was not found', 404);
+    }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant update this test', 403);
+    }
+    if (req.body.title) {
+      const titleInUse = await this.testService.getOneByTitle(req.body.title);
+      if (titleInUse) {
+        throw new HttpException('This title is already in use', 400);
+      }
+    }
+    await this.testService.updateOneById(
+      { title: req.body.title, description: req.body.description }, 
+      test._id.toHexString()
+    );
+    return { message: 'The test has been updated successfully!' };
+  }
+
   async addQuestion(req: express.Request<AddQuestionsParams, {}, AddQuestionDto>) {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
+    }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant add questions to this test', 403);
     }
     const testWithQuestion = 
       await this.testService.getOneByIdAndQuestionTitle(req.body.title, test._id.toHexString());
@@ -49,10 +96,34 @@ class TestController {
     return { message: 'The question has been added successfully!' };
   }
 
+  async updateQuestion(req: express.Request<UpdateQuestionParams, {}, UpdateQuestionDto>) {
+    const question = await this.testService.getOneQuestionById(req.params.questionId);
+    if (!question) {
+      throw new HttpException('The question was not found', 404);
+    }
+    const test = await this.testService.getOneByQuestionId(question._id.toHexString());
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant add options to this question', 403);
+    }
+    const questionWithTitle = 
+      await this.testService.getOneQuestionByTitleAndTestId(req.body.title, test!._id.toHexString());
+    if (questionWithTitle) {
+      throw new HttpException('This title is already in use', 400);
+    }
+    await this.testService.updateOneQuestionById({ title: req.body.title }, question._id.toHexString());
+    return { message: 'The question has been updated successfully!' };
+  }
+
   async addOption(req: express.Request<AddOptionParams, {}, AddOptionDto>) {
     const question = await this.testService.getOneQuestionById(req.params.questionId);
     if (!question) {
       throw new HttpException('The question was not found', 404);
+    }
+    const test = await this.testService.getOneByQuestionId(question._id.toHexString());
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant add options to this question', 403);
     }
     const questionWithOption = 
       await this.testService.getOneQuestionByIdAndOptionTitle(
@@ -72,6 +143,52 @@ class TestController {
     return { message: 'The option has been added successfully!' };
   }
 
+  async addAnswer(req: express.Request<AddAnswerParams, {}, AddAnswerDto>) {
+    const question = await this.testService.getOneQuestionById(req.params.questionId);
+    if (!question) {
+      throw new HttpException('The question was not found', 404);
+    }
+    const test = await this.testService.getOneByQuestionId(question._id.toHexString());
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant add options to this question', 403);
+    }
+    const questionByOptionId = 
+      await this.testService.getOneQuestionByIdAndOptionId(question._id.toHexString(), req.body.optionId);
+    if (!questionByOptionId) {
+      throw new HttpException('This option doesnt exist', 404);
+    }
+    const isAnswerInQuestion = this.testService.isAnswerInQuestion(question, req.body.optionId);
+    if (isAnswerInQuestion) {
+      throw new HttpException('This answer is already set', 400);
+    }
+    const prepareQuestion = 
+      this.testService.prepareQuestionForAddAnswer(question._id, new ObjectId(req.body.optionId));
+    await this.testService.addAnswerToQuestion(prepareQuestion);
+    return { message: 'The answer has been added successfully!' };
+  }
+
+  async deleteAnswer(req: express.Request<DeleteAnswerParams>) {
+    const answer = await this.testService.getOneOptionById(req.params.answerId);
+    if (!answer) {
+      throw new HttpException('The answer was not found', 404);
+    }
+    const question = await this.testService.getOneQuestionByAnswerId(answer._id.toHexString());
+    if (!question) {
+      throw new HttpException('The question with this option was not found', 404);
+    }
+    const test = await this.testService.getOneByQuestionId(question._id.toHexString());
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant delete this option', 403);
+    }
+    await this.testService.deleteOneAnswerByIdAndQuestionId(
+      answer._id.toHexString(),
+      question._id.toHexString()
+    );
+    return { message: 'The answer has been deleted successfully!' };
+  }
+
   async deleteOption(req: express.Request<DeleteOptionParams>) {
     const option = await this.testService.getOneOptionById(req.params.optionId);
     if (!option) {
@@ -79,7 +196,12 @@ class TestController {
     }
     const question = await this.testService.getOneQuestionByOptionId(option._id.toHexString());
     if (!question) {
-      throw new HttpException('The question was not found', 404);
+      throw new HttpException('The question with this answer was not found', 404);
+    }
+    const test = await this.testService.getOneByQuestionId(question._id.toHexString());
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test!.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant delete this option', 403);
     }
     await this.testService.deleteOneOptionByIdAndQuestionId(
       option._id.toHexString(),
@@ -97,6 +219,10 @@ class TestController {
     if (!test) {
       throw new HttpException('The test was not found', 404);
     }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant delete this question', 403);
+    }
     await this.testService.deleteOneQuestionByIdAndTestId(
       question._id.toHexString(),
       test._id.toHexString()
@@ -108,6 +234,10 @@ class TestController {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
+    }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (test.createdBy.toHexString() !== user!._id.toHexString()) {
+      throw new HttpException('You cant delete this test', 403);
     }
     await this.testService.deleteOneById(test._id.toHexString());
     return { message: 'The test has been deleted successfully!' };
