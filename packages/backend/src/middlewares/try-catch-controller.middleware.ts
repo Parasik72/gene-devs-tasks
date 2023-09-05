@@ -11,8 +11,8 @@ export const tryCatchController = <TParams extends ParamsDictionary, T>(
       return res.status(expectedStatusCode).json(await controllerFunc(req, res));
     } catch (error) {
       if (error instanceof HttpException)
-        return res.status(error.statusCode).json({ message: error.message });
-      return res.status(500).json({ message: 'Server error.' });
+        return res.status(error.statusCode).json({ error: error.message });
+      return res.status(500).json({ error: `Server error. ${error}` });
     }
   };
 };
