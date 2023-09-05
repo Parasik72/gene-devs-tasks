@@ -1,9 +1,11 @@
 import { ObjectId } from 'mongodb';
 import { TestRepository } from './test.repository';
 import { 
+  IBulkWriteAddOptionToQuestion,
   IBulkWriteAddQuestionToTest,
   IBulkWriteCreateOption, 
   IBulkWriteCreateQuestion, 
+  ICreateOption, 
   ICreateTest, 
   IPrepareQuestionForCreation 
 } from './test.types';
@@ -20,8 +22,28 @@ export class TestService {
     return this.testRepository.getOneByTitle(title);
   }
 
+  async getOneByQuestionId(questionId: string) {
+    return this.testRepository.getOneByQuestionId(questionId);
+  }
+
+  async getOneQuestionByOptionId(optionId: string) {
+    return this.testRepository.getOneQuestionByOptionId(optionId);
+  }
+
+  async getOneByIdAndQuestionTitle(questionTitle: string, testId: string) {
+    return (await this.testRepository.getOneByIdAndQuestionTitle(questionTitle, testId))[0];
+  }
+
   async createTest(data: ICreateTest) {
     return this.testRepository.createTest(data);
+  }
+
+  async createOption(data: ICreateOption) {
+    return this.testRepository.createOption(data);
+  }
+
+  async getOneQuestionByIdAndOptionTitle(questionId: string, optionTitle: string) {
+    return (await this.testRepository.getOneQuestionByIdAndOptionTitle(questionId, optionTitle))[0];
   }
 
   async createOptions(data: IBulkWriteCreateOption[], answers: IOption[]) {
@@ -40,8 +62,32 @@ export class TestService {
     return (await this.testRepository.createQuestion(data)).insertedIds[0];
   }
 
+  async getOneQuestionById(questionId: string) {
+    return this.testRepository.getOneQuestionById(questionId);
+  }
+
+  async deleteOneById(testId: string) {
+    return this.testRepository.deleteOneById(testId);
+  }
+
+  async deleteOneQuestionByIdAndTestId(questionId: string, testId: string) {
+    return this.testRepository.deleteOneQuestionByIdAndTestId(questionId, testId);
+  }
+
+  async deleteOneOptionByIdAndQuestionId(optionId: string, questionId: string) {
+    return this.testRepository.deleteOneOptionByIdAndQuestionId(optionId, questionId);
+  }
+
   async addQuestionToTest(data: IBulkWriteAddQuestionToTest) {
     return this.testRepository.addQuestionToTest(data);
+  }
+
+  async addOptionToQuestion(data: IBulkWriteAddOptionToQuestion) {
+    return this.testRepository.addOptionToQuestion(data);
+  }
+
+  async getOneOptionById(optionId: string) {
+    return this.testRepository.getOneOptionById(optionId);
   }
 
   prepareOptionsForCreation(options: IOption[]) {
@@ -65,6 +111,15 @@ export class TestService {
       updateOne: {
         filter: { _id: testId },
         update: { $push: { questions: questionId } }
+      }
+    };
+  }
+
+  prepareQuestionForAddOption(questionId: ObjectId, optionId: ObjectId) {
+    return {
+      updateOne: {
+        filter: { _id: questionId },
+        update: { $push: { options: optionId } }
       }
     };
   }

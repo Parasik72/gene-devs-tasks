@@ -36,3 +36,14 @@ export interface IBulkWriteAddQuestionToTest {
     update: { $push: { questions: ObjectId; } }
   }
 }
+
+export interface ICreateOption {
+  text: string;
+}
+
+export interface IBulkWriteAddOptionToQuestion {
+  updateOne: {
+    filter: { _id: ObjectId },
+    update: { $push: { options: ObjectId; } }
+  }
+}

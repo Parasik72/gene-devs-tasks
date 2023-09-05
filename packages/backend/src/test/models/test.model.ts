@@ -33,4 +33,14 @@ export const TestSchema = new mongoose.Schema<ITest>({
   }
 }, { timestamps: true });
 
+TestSchema.pre('deleteOne',  async function (next) {
+  try {
+    const test = await this.model.findOne(this.getFilter());
+    await Question.deleteMany({ _id: { $in: test.questions } });
+    next();
+  } catch (error: any) {
+    next(error);
+  }
+});
+
 export const Test = mongoose.model<ITest>('tests', TestSchema);
