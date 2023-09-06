@@ -24,6 +24,9 @@ import { DeleteAnswerParams } from './params/delete-answer.params';
 import { PassTestParams } from './params/pass-test.params';
 import { PassTestDto } from './dto/pass-test.dto';
 import { GetAssessmentsParams } from './params/get-assessments.params';
+import { ITest } from './models/test.model';
+import { IMessage, ITestWithOptions } from './test.types';
+import { IAssessment } from './models/assessment.model';
 
 class TestController {
   constructor(
@@ -31,11 +34,11 @@ class TestController {
     private readonly userService: UserService
   ) {}
 
-  async getAllTests() {
+  async getAllTests(): Promise<ITest[]> {
     return this.testService.getAllTests();
   }
 
-  async getOneTestById(req: express.Request<GetOneTestByIdParams>) {
+  async getOneTestById(req: express.Request<GetOneTestByIdParams>): Promise<ITestWithOptions> {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
@@ -43,7 +46,7 @@ class TestController {
     return this.testService.getOneFullTestById(test._id.toHexString());
   }
 
-  async createTest(req: express.Request<{}, {}, CreateTestDto>) {
+  async createTest(req: express.Request<{}, {}, CreateTestDto>): Promise<ITest> {
     const user = await this.userService.getOneUserByEmail(req.user.email);
     const { title, description } = req.body;
     const titleInUse = await this.testService.getOneByTitle(title);
@@ -53,7 +56,8 @@ class TestController {
     return this.testService.createTest({ title, description, createdBy: user!._id });
   }
 
-  async updateTest(req: express.Request<UpdateTestParams, {}, UpdateTestDto>) {
+  async updateTest(req: express.Request<UpdateTestParams, {}, UpdateTestDto>)
+  : Promise<IMessage> {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
@@ -75,7 +79,8 @@ class TestController {
     return { message: 'The test has been updated successfully!' };
   }
 
-  async addQuestion(req: express.Request<AddQuestionsParams, {}, AddQuestionDto>) {
+  async addQuestion(req: express.Request<AddQuestionsParams, {}, AddQuestionDto>)
+  : Promise<IMessage> {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
@@ -99,7 +104,8 @@ class TestController {
     return { message: 'The question has been added successfully!' };
   }
 
-  async updateQuestion(req: express.Request<UpdateQuestionParams, {}, UpdateQuestionDto>) {
+  async updateQuestion(req: express.Request<UpdateQuestionParams, {}, UpdateQuestionDto>)
+  : Promise<IMessage> {
     const question = await this.testService.getOneQuestionById(req.params.questionId);
     if (!question) {
       throw new HttpException('The question was not found', 404);
@@ -118,7 +124,8 @@ class TestController {
     return { message: 'The question has been updated successfully!' };
   }
 
-  async addOption(req: express.Request<AddOptionParams, {}, AddOptionDto>) {
+  async addOption(req: express.Request<AddOptionParams, {}, AddOptionDto>)
+  : Promise<IMessage> {
     const question = await this.testService.getOneQuestionById(req.params.questionId);
     if (!question) {
       throw new HttpException('The question was not found', 404);
@@ -146,7 +153,8 @@ class TestController {
     return { message: 'The option has been added successfully!' };
   }
 
-  async addAnswer(req: express.Request<AddAnswerParams, {}, AddAnswerDto>) {
+  async addAnswer(req: express.Request<AddAnswerParams, {}, AddAnswerDto>)
+  : Promise<IMessage> {
     const question = await this.testService.getOneQuestionById(req.params.questionId);
     if (!question) {
       throw new HttpException('The question was not found', 404);
@@ -171,7 +179,8 @@ class TestController {
     return { message: 'The answer has been added successfully!' };
   }
 
-  async deleteAnswer(req: express.Request<DeleteAnswerParams>) {
+  async deleteAnswer(req: express.Request<DeleteAnswerParams>)
+  : Promise<IMessage> {
     const answer = await this.testService.getOneOptionById(req.params.answerId);
     if (!answer) {
       throw new HttpException('The answer was not found', 404);
@@ -192,7 +201,8 @@ class TestController {
     return { message: 'The answer has been deleted successfully!' };
   }
 
-  async deleteOption(req: express.Request<DeleteOptionParams>) {
+  async deleteOption(req: express.Request<DeleteOptionParams>)
+  : Promise<IMessage> {
     const option = await this.testService.getOneOptionById(req.params.optionId);
     if (!option) {
       throw new HttpException('The option was not found', 404);
@@ -213,7 +223,8 @@ class TestController {
     return { message: 'The option has been deleted successfully!' };
   }
 
-  async deleteQuestion(req: express.Request<DeleteQuestionParams>) {
+  async deleteQuestion(req: express.Request<DeleteQuestionParams>)
+  : Promise<IMessage> {
     const question = await this.testService.getOneQuestionById(req.params.questionId);
     if (!question) {
       throw new HttpException('The question was not found', 404);
@@ -233,7 +244,8 @@ class TestController {
     return { message: 'The question has been deleted successfully!' };
   }
 
-  async deleteTest(req: express.Request<DeleteTestParams>) {
+  async deleteTest(req: express.Request<DeleteTestParams>)
+  : Promise<IMessage> {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
@@ -246,10 +258,14 @@ class TestController {
     return { message: 'The test has been deleted successfully!' };
   }
 
-  async passTest(req: express.Request<PassTestParams, {}, PassTestDto>) {
+  async passTest(req: express.Request<PassTestParams, {}, PassTestDto>)
+  : Promise<IAssessment> {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
+    }
+    if (this.testService.isTestEmpty(test)) {
+      throw new HttpException('This test is empty', 400);
     }
     const user = await this.userService.getOneUserByEmail(req.user.email);
     return this.testService.generateAssessment(
@@ -259,7 +275,8 @@ class TestController {
     );
   }
 
-  async getAssessments(req: express.Request<GetAssessmentsParams>) {
+  async getAssessments(req: express.Request<GetAssessmentsParams>)
+  : Promise<IAssessment[]> {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);

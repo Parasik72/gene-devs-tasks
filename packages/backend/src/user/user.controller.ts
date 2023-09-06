@@ -5,6 +5,7 @@ import { RegistrationDto } from './dto/registration.dto';
 import { HttpException } from '../exceptions/http.exception';
 import { TokenService } from '../token/token.service';
 import { LoginDto } from './dto/login.dto';
+import { IAccessToken } from './user.types';
 
 class UserController {
   constructor(
@@ -12,7 +13,7 @@ class UserController {
     private readonly tokenService: TokenService,
   ) {}
 
-  async register(req: express.Request<{}, {}, RegistrationDto>) {
+  async register(req: express.Request<{}, {}, RegistrationDto>): Promise<IAccessToken> {
     const { email, password } = req.body;
     const user = await this.userService.getOneUserByEmail(email);
     if (user) {
@@ -24,7 +25,7 @@ class UserController {
     return { accessToken };
   }
 
-  async login(req: express.Request<{}, {}, LoginDto>) {
+  async login(req: express.Request<{}, {}, LoginDto>): Promise<IAccessToken> {
     const { email, password } = req.body;
     const user = await this.userService.getOneUserByEmail(email);
     if (!user) {
@@ -38,7 +39,7 @@ class UserController {
     return { accessToken };
   }
 
-  async auth(req: express.Request) {
+  async auth(req: express.Request): Promise<IAccessToken> {
     const { email } = req.user!;
     const user = await this.userService.getOneUserByEmail(email);
     if (!user) {

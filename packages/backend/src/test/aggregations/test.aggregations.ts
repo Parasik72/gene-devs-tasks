@@ -25,31 +25,6 @@ export const getOneByIdAndQuestionTitleAgg =
     ]
   );
 
-export const getOneQuestionByIdAndOptionTitleAgg = 
-  (questionId: string, optionTitle: string) => (
-    [
-      {
-        $match: {
-          _id: new ObjectId(questionId)
-        }
-      },
-      {
-        $lookup: {
-          from: 'options',
-          localField: 'options',
-          foreignField: '_id',
-          as: 'options'
-        }
-      },
-      { $unwind: { path: '$options' } },
-      {
-        $match: {
-          'options.text': optionTitle
-        }
-      }
-    ]
-  );
-
 export const getOneQuestionByTitleAndTestIdAgg = 
   (title: string, testId: string) => (
     [
