@@ -83,3 +83,48 @@ export interface ICreateAssessment {
   candidate: ObjectId;
   score: number;
 }
+
+export interface ITestWithOptions {
+  _id: ObjectId;
+  title: string;
+  description: string;
+  questions: {
+    _id: ObjectId;
+    title: string;
+    options: {
+      _id: ObjectId;
+      text: string;
+    } []
+  } []
+  createdBy: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface ITestWithQuestions {
+  _id: ObjectId;
+  title: string;
+  description: string;
+  questions: {
+    _id: ObjectId;
+    title: string;
+    options: ObjectId[];
+    answers: ObjectId[];
+  } []
+  createdBy: ObjectId;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IQuestionWithOptions {
+  _id: ObjectId;
+  title: string;
+  options: {
+    _id: ObjectId;
+    text: string;
+  } []
+}
+
+export interface IMessage {
+  message: string;
+}

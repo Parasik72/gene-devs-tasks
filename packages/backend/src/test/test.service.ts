@@ -9,6 +9,9 @@ import {
   ICreateOption, 
   ICreateTest, 
   IPrepareQuestionForCreation, 
+  IQuestionWithOptions, 
+  ITestWithOptions, 
+  ITestWithQuestions, 
   IUpdateQuestion, 
   IUpdateTest,
   IUserAnswer
@@ -17,55 +20,59 @@ import { IOption } from './models/option.model';
 import { IQuestion } from './models/question.model';
 import { ITest } from './models/test.model';
 import { IUser } from '../user/models/user.model';
+import { IAssessment } from './models/assessment.model';
 
 export class TestService {
   constructor(private readonly testRepository: TestRepository) {}
 
-  async getAllTests() {
+  async getAllTests(): Promise<ITest[]>  {
     return this.testRepository.getAllTests();
   }
 
-  async getOneFullTestById(testId: string) {
+  async getOneFullTestById(testId: string): Promise<ITestWithOptions> {
     return (await this.testRepository.getOneFullTestById(testId))[0];
   }
 
-  async getOneById(id: string) {
+  async getOneById(id: string): Promise<ITest | null> {
     return this.testRepository.getOneById(id);
   }
 
-  async getOneByTitle(title: string) {
+  async getOneByTitle(title: string): Promise<ITest | null> {
     return this.testRepository.getOneByTitle(title);
   }
 
-  async getOneByQuestionId(questionId: string) {
+  async getOneByQuestionId(questionId: string): Promise<ITest | null> {
     return this.testRepository.getOneByQuestionId(questionId);
   }
 
-  async getOneQuestionByOptionId(optionId: string) {
+  async getOneQuestionByOptionId(optionId: string): Promise<IQuestion | null> {
     return this.testRepository.getOneQuestionByOptionId(optionId);
   }
 
-  async getOneQuestionByAnswerId(answerId: string) {
+  async getOneQuestionByAnswerId(answerId: string): Promise<IQuestion | null> {
     return this.testRepository.getOneQuestionByAnswerId(answerId);
   }
 
-  async getOneByIdAndQuestionTitle(questionTitle: string, testId: string) {
+  async getOneByIdAndQuestionTitle(questionTitle: string, testId: string)
+  : Promise<ITestWithQuestions> {
     return (await this.testRepository.getOneByIdAndQuestionTitle(questionTitle, testId))[0];
   }
 
-  async createTest(data: ICreateTest) {
+  async createTest(data: ICreateTest): Promise<ITest> {
     return this.testRepository.createTest(data);
   }
 
-  async createOption(data: ICreateOption) {
+  async createOption(data: ICreateOption): Promise<IOption> {
     return this.testRepository.createOption(data);
   }
 
-  async getOneQuestionByIdAndOptionTitle(questionId: string, optionTitle: string) {
+  async getOneQuestionByIdAndOptionTitle(questionId: string, optionTitle: string)
+  : Promise<IQuestionWithOptions> {
     return (await this.testRepository.getOneQuestionByIdAndOptionTitle(questionId, optionTitle))[0];
   }
 
-  async getOneQuestionByTitleAndTestId(title: string, testId: string) {
+  async getOneQuestionByTitleAndTestId(title: string, testId: string)
+  : Promise<ITestWithQuestions> {
     return (await this.testRepository.getOneQuestionByTitleAndTestId(title, testId))[0];
   }
 
@@ -85,27 +92,27 @@ export class TestService {
     return (await this.testRepository.createQuestion(data)).insertedIds[0];
   }
 
-  async getOneQuestionById(questionId: string) {
+  async getOneQuestionById(questionId: string): Promise<IQuestion | null> {
     return this.testRepository.getOneQuestionById(questionId);
   }
 
-  async getOneQuestionByIdAndOptionId(questionId: string, optionId: string) {
+  async getOneQuestionByIdAndOptionId(questionId: string, optionId: string): Promise<IQuestion | null> {
     return this.testRepository.getOneQuestionByIdAndOptionId(questionId, optionId);
   }
 
-  async deleteOneById(testId: string) {
+  async deleteOneById(testId: string): Promise<void> {
     return this.testRepository.deleteOneById(testId);
   }
 
-  async deleteOneQuestionByIdAndTestId(questionId: string, testId: string) {
+  async deleteOneQuestionByIdAndTestId(questionId: string, testId: string): Promise<void> {
     return this.testRepository.deleteOneQuestionByIdAndTestId(questionId, testId);
   }
 
-  async deleteOneOptionByIdAndQuestionId(optionId: string, questionId: string) {
+  async deleteOneOptionByIdAndQuestionId(optionId: string, questionId: string): Promise<void> {
     return this.testRepository.deleteOneOptionByIdAndQuestionId(optionId, questionId);
   }
 
-  async deleteOneAnswerByIdAndQuestionId(answerId: string, questionId: string) {
+  async deleteOneAnswerByIdAndQuestionId(answerId: string, questionId: string): Promise<void> {
     return this.testRepository.deleteOneAnswerByIdAndQuestionId(answerId, questionId);
   }
 
@@ -121,7 +128,7 @@ export class TestService {
     return this.testRepository.addAnswerToQuestion(data);
   }
 
-  async getOneOptionById(optionId: string) {
+  async getOneOptionById(optionId: string): Promise<IOption | null> {
     return this.testRepository.getOneOptionById(optionId);
   }
 
@@ -133,15 +140,17 @@ export class TestService {
     return this.testRepository.updateOneQuestionById(data, questionId);
   }
 
-  async getAssessmentsByTestId(testId: string) {
+  async getAssessmentsByTestId(testId: string): Promise<IAssessment[]> {
     return this.testRepository.getAssessmentsByTestId(testId);
   }
 
-  async getAssessmentsByTestIdAndUserId(testId: string, userId: string) {
+  async getAssessmentsByTestIdAndUserId(testId: string, userId: string)
+  : Promise<IAssessment[]> {
     return this.testRepository.getAssessmentsByTestIdAndUserId(testId, userId);
   }
 
-  async generateAssessment(testId: string, user: IUser, answers: IUserAnswer[]) {
+  async generateAssessment(testId: string, user: IUser, answers: IUserAnswer[])
+  : Promise<IAssessment> {
     const testWithOptionsAndAnswers = 
       (await this.testRepository.getTestWithQuestionOptionsAndAnswersIds(testId))[0];
     let score = 0;
@@ -178,15 +187,19 @@ export class TestService {
     });
   }
 
-  isUserTestCreator(test: ITest, user: IUser) {
+  isUserTestCreator(test: ITest, user: IUser): boolean {
     return test.createdBy.toHexString() === user._id.toHexString();
   }
 
-  isAnswerInQuestion(question: IQuestion, answerId: string) {
+  isAnswerInQuestion(question: IQuestion, answerId: string): IOption | undefined {
     return question.answers.find((answer) => answer._id.toHexString() === answerId);
   }
 
-  prepareOptionsForCreation(options: IOption[]) {
+  isTestEmpty(test: ITest): boolean {
+    return test.questions.length === 0;
+  }
+
+  prepareOptionsForCreation(options: IOption[]): IBulkWriteCreateOption[] {
     return options.map((option) => ({
       insertOne: {
         document: option
@@ -194,7 +207,7 @@ export class TestService {
     }));
   }
 
-  prepareQuestionForCreation(question: IPrepareQuestionForCreation) {
+  prepareQuestionForCreation(question: IPrepareQuestionForCreation): IBulkWriteCreateQuestion {
     return {
       insertOne: {
         document: question
@@ -202,7 +215,7 @@ export class TestService {
     };
   }
 
-  prepareTestForAddQuestion(testId: ObjectId, questionId: ObjectId) {
+  prepareTestForAddQuestion(testId: ObjectId, questionId: ObjectId): IBulkWriteAddQuestionToTest {
     return {
       updateOne: {
         filter: { _id: testId },
@@ -211,7 +224,7 @@ export class TestService {
     };
   }
 
-  prepareQuestionForAddOption(questionId: ObjectId, optionId: ObjectId) {
+  prepareQuestionForAddOption(questionId: ObjectId, optionId: ObjectId): IBulkWriteAddOptionToQuestion {
     return {
       updateOne: {
         filter: { _id: questionId },
@@ -220,7 +233,7 @@ export class TestService {
     };
   }
 
-  prepareQuestionForAddAnswer(questionId: ObjectId, answerId: ObjectId) {
+  prepareQuestionForAddAnswer(questionId: ObjectId, answerId: ObjectId): IBulkWriteAddAnswerToQuestion {
     return {
       updateOne: {
         filter: { _id: questionId },

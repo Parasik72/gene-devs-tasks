@@ -1,5 +1,5 @@
 import { IQuestion, Question } from './models/question.model';
-import { Test } from './models/test.model';
+import { ITest, Test } from './models/test.model';
 import { 
   IBulkWriteAddAnswerToQuestion,
   IBulkWriteAddOptionToQuestion,
@@ -9,73 +9,82 @@ import {
   ICreateAssessment, 
   ICreateOption, 
   ICreateTest, 
+  IQuestionWithOptions, 
+  ITestWithOptions, 
   ITestWithOptionsAndAnswers, 
+  ITestWithQuestions, 
   IUpdateQuestion, 
   IUpdateTest
 } from './test.types';
-import { Option } from './models/option.model';
+import { IOption, Option } from './models/option.model';
 import { 
   getOneByIdAndQuestionTitleAgg, 
-  getOneQuestionByIdAndOptionTitleAgg, 
   getOneQuestionByTitleAndTestIdAgg, 
   getOneTestByIdAgg,
   getTestWithQuestionOptionsAndAnswersIdsAgg
 } from './aggregations/test.aggregations';
-import { Assessment } from './models/assessment.model';
-import { getAssessmentByTestIdAgg, getAssessmentByTestIdAndUserIdAgg } from './aggregations/assessments.aggregations';
+import { Assessment, IAssessment } from './models/assessment.model';
+import { 
+  getAssessmentByTestIdAgg, 
+  getAssessmentByTestIdAndUserIdAgg 
+} from './aggregations/assessments.aggregations';
+import { getOneQuestionByIdAndOptionTitleAgg } from './aggregations/question.aggregations';
 
 export class TestRepository {
-  async getAllTests() {
+  async getAllTests(): Promise<ITest[]> {
     return Test.find();
   }
 
-  async getOneFullTestById(testId: string) {
+  async getOneFullTestById(testId: string): Promise<ITestWithOptions[]> {
     return Test.aggregate(
       getOneTestByIdAgg(testId)
     );
   }
 
-  async getOneById(testId: string) {
+  async getOneById(testId: string): Promise<ITest | null> {
     return Test.findById(testId);
   }
 
-  async getOneByTitle(title: string) {
+  async getOneByTitle(title: string): Promise<ITest | null> {
     return Test.findOne({ title });
   }
 
-  async getOneByQuestionId(questionId: string) {
+  async getOneByQuestionId(questionId: string): Promise<ITest | null> {
     return Test.findOne({ questions: questionId });
   }
 
-  async getOneQuestionByOptionId(optionId: string) {
+  async getOneQuestionByOptionId(optionId: string): Promise<IQuestion | null> {
     return Question.findOne({ options: optionId });
   }
 
-  async getOneQuestionByAnswerId(answerId: string) {
+  async getOneQuestionByAnswerId(answerId: string): Promise<IQuestion | null> {
     return Question.findOne({ answers: answerId });
   }
 
-  async getOneByIdAndQuestionTitle(questionTitle: string, testId: string) {
+  async getOneByIdAndQuestionTitle(questionTitle: string, testId: string)
+  : Promise<ITestWithQuestions[]> {
     return Test.aggregate(
       getOneByIdAndQuestionTitleAgg(questionTitle, testId)
     );
   }
 
-  async createTest(data: ICreateTest) {
+  async createTest(data: ICreateTest): Promise<ITest> {
     return Test.create(data);
   }
 
-  async createOption(data: ICreateOption) {
+  async createOption(data: ICreateOption): Promise<IOption> {
     return Option.create(data);
   }
 
-  async getOneQuestionByIdAndOptionTitle(questionId: string, optionTitle: string) {
+  async getOneQuestionByIdAndOptionTitle(questionId: string, optionTitle: string)
+  : Promise<IQuestionWithOptions[]> {
     return Question.aggregate(
       getOneQuestionByIdAndOptionTitleAgg(questionId, optionTitle)
     );
   }
 
-  async getOneQuestionByIdAndOptionId(questionId: string, optionId: string) {
+  async getOneQuestionByIdAndOptionId(questionId: string, optionId: string)
+  : Promise<IQuestion | null> {
     return Question.findOne({ _id: questionId, options: optionId });
   }
 
@@ -87,16 +96,16 @@ export class TestRepository {
     return Question.bulkWrite([data]);
   }
 
-  async getOneQuestionById(questionId: string) {
+  async getOneQuestionById(questionId: string): Promise<IQuestion | null> {
     return Question.findById(questionId);
   }
 
-  async deleteOneById(testId: string) {
+  async deleteOneById(testId: string): Promise<void> {
     await Test.deleteOne({ _id: testId });
     await Assessment.deleteMany({ test: testId });
   }
 
-  async deleteOneQuestionByIdAndTestId(questionId: string, testId: string) {
+  async deleteOneQuestionByIdAndTestId(questionId: string, testId: string): Promise<void>  {
     await Test.updateOne(
       { _id: testId },
       { $pull: { questions: questionId } }
@@ -104,7 +113,7 @@ export class TestRepository {
     await Question.deleteOne({ _id: questionId });
   }
 
-  async deleteOneOptionByIdAndQuestionId(optionId: string, questionId: string) {
+  async deleteOneOptionByIdAndQuestionId(optionId: string, questionId: string): Promise<void>  {
     await Question.updateOne(
       { _id: questionId },
       { $pull: { options: optionId, answers: optionId } }
@@ -112,7 +121,7 @@ export class TestRepository {
     await Option.deleteOne({ _id: optionId });
   }
   
-  async deleteOneAnswerByIdAndQuestionId(answerId: string, questionId: string) {
+  async deleteOneAnswerByIdAndQuestionId(answerId: string, questionId: string): Promise<void>  {
     await Question.updateOne(
       { _id: questionId },
       { $pull: { answers: answerId } }
@@ -131,17 +140,19 @@ export class TestRepository {
     return Question.bulkWrite([data as any]);
   }
 
-  async getOneOptionById(optionId: string) {
+  async getOneOptionById(optionId: string): Promise<IOption | null> {
     return Option.findById(optionId);
   }
 
-  async getOneQuestionByTitleAndTestId(title: string, testId: string) {
+  async getOneQuestionByTitleAndTestId(title: string, testId: string)
+  : Promise<ITestWithQuestions[]> {
     return Test.aggregate(
       getOneQuestionByTitleAndTestIdAgg(title, testId)
     );
   }
 
-  async getTestWithQuestionOptionsAndAnswersIds(testId: string): Promise<ITestWithOptionsAndAnswers[]> {
+  async getTestWithQuestionOptionsAndAnswersIds(testId: string)
+  : Promise<ITestWithOptionsAndAnswers[]> {
     return Test.aggregate<ITestWithOptionsAndAnswers>(
       getTestWithQuestionOptionsAndAnswersIdsAgg(testId)
     );
@@ -155,17 +166,18 @@ export class TestRepository {
     return Question.updateOne({ _id: questionId }, data);
   }
 
-  async createAssessment(data: ICreateAssessment) {
+  async createAssessment(data: ICreateAssessment): Promise<IAssessment> {
     return Assessment.create(data);
   }
 
-  async getAssessmentsByTestId(testId: string) {
+  async getAssessmentsByTestId(testId: string): Promise<IAssessment[]> {
     return Assessment.aggregate(
       getAssessmentByTestIdAgg(testId)
     );
   }
 
-  async getAssessmentsByTestIdAndUserId(testId: string, userId: string) {
+  async getAssessmentsByTestIdAndUserId(testId: string, userId: string)
+  : Promise<IAssessment[]> {
     return Assessment.aggregate(
       getAssessmentByTestIdAndUserIdAgg(testId, userId)
     );
