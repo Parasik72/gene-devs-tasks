@@ -1,7 +1,7 @@
 import { 
   IAuthFormLogin, 
   IAuthFormRegistration 
-} from '../../../auth/auth-form/auth-form.interfaces';
+} from '../../../auth/auth-form/auth-form.types';
 
 export interface IUserRegistrationSending {
   data: IAuthFormRegistration;

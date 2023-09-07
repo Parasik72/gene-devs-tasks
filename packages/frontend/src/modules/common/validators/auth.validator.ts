@@ -1,5 +1,5 @@
-import { IAuthFormLogin, IAuthFormRegistration } from '../../auth/auth-form/auth-form.interfaces';
-import { authRegistrationFormInitialVariables } from '../../auth/auth.consts';
+import { IAuthFormLogin, IAuthFormRegistration } from '../../auth/auth-form/auth-form.types';
+import { authRegistrationFormInitialVariables } from '../../auth/auth.constants';
 import { createValidation } from './class.validator';
 
 export const authFormValidate = (values: IAuthFormRegistration | IAuthFormLogin) => {

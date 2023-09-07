@@ -42,7 +42,6 @@ export class HttpService {
     if (withAuth) {
       config = this.configForAuth(config);
     }
-    console.log(config);
     try {
       const response = await this.fetchingService.post(
         this.getFullApiUrl(config.url ?? 'none'),
@@ -51,7 +50,6 @@ export class HttpService {
       );
       return response;
     } catch (err) {
-      console.log(err);
       const axiosError = err as AxiosError<IHttpError>;
       throw new HttpException(axiosError.response!.data.error, axiosError.response!.status);
     }
@@ -79,6 +77,23 @@ export class HttpService {
     }
     try {
       const response = await this.fetchingService.put(
+        this.getFullApiUrl(config.url ?? 'none'),
+        config.data,
+        this.extractUrlAndDataFromConfig(config)
+      );
+      return response;
+    } catch (err) {
+      const axiosError = err as AxiosError<IHttpError>;
+      throw new HttpException(axiosError.response!.data.error, axiosError.response!.status);
+    }
+  }
+
+  public async patch(config: AxiosRequestConfig, withAuth = true) {
+    if (withAuth) {
+      config = this.configForAuth(config);
+    }
+    try {
+      const response = await this.fetchingService.patch(
         this.getFullApiUrl(config.url ?? 'none'),
         config.data,
         this.extractUrlAndDataFromConfig(config)

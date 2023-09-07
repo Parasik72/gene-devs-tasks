@@ -11,11 +11,11 @@ export const useUserQuery = () => {
     const checkAuthFunc = async () => {
       setIsAuthLoading(true);
       if(!localStorage.getItem(STORAGE_KEYS.TOKEN)) {
-        return new UserModel(false);
+        return new UserModel(false, '');
       }
       const result = await userService.checkAuth();
       localStorage.setItem(STORAGE_KEYS.TOKEN, result.accessToken);
-      return new UserModel(true);
+      return new UserModel(true, result.user.email);
     };
     const onSuccess = () => {
       setIsAuthLoading(false);

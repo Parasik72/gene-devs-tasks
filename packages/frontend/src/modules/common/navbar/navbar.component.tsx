@@ -23,31 +23,34 @@ export const NavbarComponent = () => {
     <AppBar component="nav">
       <Container>
         <Toolbar>
-          <Typography onClick={onTitle} variant="h5" component={StyledNavbarTitle}>
-            {APP_NAME}
-          </Typography>
-          {user && (
-            <Box>
-              {!isAuth && (
-                <>
-                  <Box onClick={onSignIn} component={StyledNavbarBtn}>
+          <Box display="flex" justifyContent="space-between" width="100%">
+            <Typography onClick={onTitle} variant="h5" component={StyledNavbarTitle}>
+              {APP_NAME}
+            </Typography>
+            {user && (
+              <Box>
+                {!isAuth && (
+                  <>
+                    <Box onClick={onSignIn} component={StyledNavbarBtn}>
                   Sign in
-                  </Box>
-                  <Box onClick={onSignUp} component={StyledNavbarBtn}>
+                    </Box>
+                    <Box onClick={onSignUp} component={StyledNavbarBtn}>
                   Sign up
-                  </Box>
-                </>
+                    </Box>
+                  </>
               
-              )}
-              {isAuth && (
-                <>
-                  <Box onClick={onLogoutClick} component={StyledNavbarBtn}>
+                )}
+                {isAuth && (
+                  <>
+                    <Box onClick={onLogoutClick} component={StyledNavbarBtn}>
                   Logout
-                  </Box>
-                </>
-              )}
-            </Box>
-          )}
+                    </Box>
+                  </>
+                )}
+              </Box>
+            )}
+          </Box>
+          
         </Toolbar>
       </Container>
     </AppBar>

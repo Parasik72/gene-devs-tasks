@@ -3,7 +3,7 @@ import { Box, FormLabel } from '@mui/material';
 import { ErrorMessage, Field } from 'formik';
 import { FC } from 'react';
 import { FormikFormErrorText, FormikFormInputItem } from './formik-form-input.styled';
-import { FormikFormInputTypes, IFormikFormInputComponent } from './formik-form-input.interfaces';
+import { FormikFormInputTypes, IFormikFormInputComponent } from './formik-form-input.types';
 
 export const FormikFormInputComponent: FC<IFormikFormInputComponent> = ({
   title,
