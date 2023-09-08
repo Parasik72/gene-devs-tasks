@@ -25,8 +25,9 @@ import { PassTestParams } from './params/pass-test.params';
 import { PassTestDto } from './dto/pass-test.dto';
 import { GetAssessmentsParams } from './params/get-assessments.params';
 import { ITest } from './models/test.model';
-import { IMessage, ITestWithOptions } from './test.types';
+import { IAssessmentWithTestAndUser, IFullTest, IMessage, ITestWithOptions } from './test.types';
 import { IAssessment } from './models/assessment.model';
+import { GetOneAssessmentParams } from './params/get-one-assessment.params';
 
 class TestController {
   constructor(
@@ -38,12 +39,24 @@ class TestController {
     return this.testService.getAllTests();
   }
 
-  async getOneTestById(req: express.Request<GetOneTestByIdParams>): Promise<ITestWithOptions> {
+  async getOneTestWithOptionsById(req: express.Request<GetOneTestByIdParams>): Promise<ITestWithOptions> {
     const test = await this.testService.getOneById(req.params.testId);
     if (!test) {
       throw new HttpException('The test was not found', 404);
     }
-    return this.testService.getOneFullTestById(test._id.toHexString());
+    return this.testService.getOneTestWithOptionsById(test._id.toHexString());
+  }
+
+  async getOneTestForEditingByIdAgg(req: express.Request<GetOneTestByIdParams>): Promise<IFullTest> {
+    const test = await this.testService.getOneById(req.params.testId);
+    if (!test) {
+      throw new HttpException('The test was not found', 404);
+    }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (!this.testService.isUserTestCreator(test, user!)) {
+      throw new HttpException('You cant get the full test', 403);
+    }
+    return this.testService.getOneTestForEditingByIdAgg(test._id.toHexString());
   }
 
   async createTest(req: express.Request<{}, {}, CreateTestDto>): Promise<ITest> {
@@ -94,12 +107,8 @@ class TestController {
     if (testWithQuestion) {
       throw new HttpException('The test with this question title is already in use', 400);
     }
-    const prepareOptions = this.testService.prepareOptionsForCreation(req.body.options);
-    const { options, answers } = await this.testService.createOptions(prepareOptions, req.body.answers);
-    const prepareQuestion = this.testService
-      .prepareQuestionForCreation({ title: req.body.title, options, answers });
-    const questionId = await this.testService.createQuestion(prepareQuestion);
-    const prepareAddQuestion = this.testService.prepareTestForAddQuestion(test._id, questionId);
+    const question = await this.testService.createQuestion({ title: req.body.title });
+    const prepareAddQuestion = this.testService.prepareTestForAddQuestion(test._id, question._id);
     await this.testService.addQuestionToTest(prepareAddQuestion);
     return { message: 'The question has been added successfully!' };
   }
@@ -273,6 +282,25 @@ class TestController {
       user!,
       req.body.answers
     );
+  }
+
+  async getAssessment(req: express.Request<GetOneAssessmentParams>)
+  : Promise<IAssessmentWithTestAndUser> {
+    const assessment = await this.testService.getOneAssessmentById(
+      req.params.assessmentId
+    );
+    if (!assessment) {
+      throw new HttpException('The assessment was not found', 404);
+    }
+    const test = await this.testService.getOneById(assessment.test._id.toHexString());
+    if (!test) {
+      throw new HttpException('The test was not found', 404);
+    }
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (!this.testService.isUserAssessmentCandidate(assessment.candidate._id, user!)) {
+      throw new HttpException('You cant get this assessment', 403);
+    }
+    return assessment;
   }
 
   async getAssessments(req: express.Request<GetAssessmentsParams>)

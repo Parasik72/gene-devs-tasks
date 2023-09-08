@@ -1,6 +1,7 @@
 import { IQuestion, Question } from './models/question.model';
 import { ITest, Test } from './models/test.model';
 import { 
+  IAssessmentWithTestAndUser,
   IBulkWriteAddAnswerToQuestion,
   IBulkWriteAddOptionToQuestion,
   IBulkWriteAddQuestionToTest, 
@@ -8,7 +9,9 @@ import {
   IBulkWriteCreateQuestion, 
   ICreateAssessment, 
   ICreateOption, 
+  ICreateQuestion, 
   ICreateTest, 
+  IFullTest, 
   IQuestionWithOptions, 
   ITestWithOptions, 
   ITestWithOptionsAndAnswers, 
@@ -18,13 +21,16 @@ import {
 } from './test.types';
 import { IOption, Option } from './models/option.model';
 import { 
+  getAllTestsAgg,
   getOneByIdAndQuestionTitleAgg, 
+  getOneTestForEditingByIdAgg, 
   getOneQuestionByTitleAndTestIdAgg, 
-  getOneTestByIdAgg,
+  getOneTestWithOptionsByIdAgg,
   getTestWithQuestionOptionsAndAnswersIdsAgg
 } from './aggregations/test.aggregations';
 import { Assessment, IAssessment } from './models/assessment.model';
 import { 
+  getAssessmentByIdAgg,
   getAssessmentByTestIdAgg, 
   getAssessmentByTestIdAndUserIdAgg 
 } from './aggregations/assessments.aggregations';
@@ -32,12 +38,20 @@ import { getOneQuestionByIdAndOptionTitleAgg } from './aggregations/question.agg
 
 export class TestRepository {
   async getAllTests(): Promise<ITest[]> {
-    return Test.find();
+    return Test.aggregate(
+      getAllTestsAgg()
+    );
   }
 
-  async getOneFullTestById(testId: string): Promise<ITestWithOptions[]> {
+  async getOneTestWithOptionsById(testId: string): Promise<ITestWithOptions[]> {
     return Test.aggregate(
-      getOneTestByIdAgg(testId)
+      getOneTestWithOptionsByIdAgg(testId)
+    );
+  }
+
+  async getOneTestForEditingByIdAgg(testId: string): Promise<IFullTest[]> {
+    return Test.aggregate(
+      getOneTestForEditingByIdAgg(testId)
     );
   }
 
@@ -92,8 +106,8 @@ export class TestRepository {
     return Option.bulkWrite(data);
   }
 
-  async createQuestion(data: IBulkWriteCreateQuestion) {
-    return Question.bulkWrite([data]);
+  async createQuestion(data: ICreateQuestion): Promise<IQuestion> {
+    return Question.create(data);
   }
 
   async getOneQuestionById(questionId: string): Promise<IQuestion | null> {
@@ -173,6 +187,13 @@ export class TestRepository {
   async getAssessmentsByTestId(testId: string): Promise<IAssessment[]> {
     return Assessment.aggregate(
       getAssessmentByTestIdAgg(testId)
+    );
+  }
+
+  async getOneAssessmentById(assessmentId: string)
+  : Promise<IAssessmentWithTestAndUser[]> {
+    return Assessment.aggregate(
+      getAssessmentByIdAgg(assessmentId)
     );
   }
 
