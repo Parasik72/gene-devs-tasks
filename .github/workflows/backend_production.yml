@@ -26,5 +26,5 @@ jobs:
         run: npm ci --legacy-peer-deps
       - name: Build BE
         run: npm run build
-      # - name: Restart BE
-      #   run: pm2 restart backend
+      - name: Restart BE
+        run: pm2 restart backend
