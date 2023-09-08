@@ -1,4 +1,4 @@
-import { useQuery } from 'react-query';
+import { useQuery, useQueryClient } from 'react-query';
 import { useState } from 'react';
 import { QUERY_KEYS, STORAGE_KEYS } from '../constants/app-keys.constants';
 import UserModel from '../services/user/user.model';
@@ -8,6 +8,7 @@ export const useUserQuery = () => {
   const [isAuthLoading, setIsAuthLoading] = useState<boolean>(true);
 
   const checkAuth = () => {
+    const queryClient = useQueryClient();
     const checkAuthFunc = async () => {
       setIsAuthLoading(true);
       if(!localStorage.getItem(STORAGE_KEYS.TOKEN)) {
@@ -24,9 +25,10 @@ export const useUserQuery = () => {
       if (localStorage.getItem(STORAGE_KEYS.TOKEN)) {
         localStorage.removeItem(STORAGE_KEYS.TOKEN);
       }
+      queryClient.setQueryData(QUERY_KEYS.USER, new UserModel(false, ''));
       setIsAuthLoading(false);
     };
-    return useQuery(QUERY_KEYS.USER, checkAuthFunc, { onSuccess, onError });
+    return useQuery(QUERY_KEYS.USER, checkAuthFunc, { onSuccess, onError, retry: 1});
   };
 
   return {

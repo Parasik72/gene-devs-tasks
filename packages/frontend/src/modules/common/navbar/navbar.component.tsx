@@ -12,7 +12,7 @@ export const NavbarComponent = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const user = queryClient.getQueryData<UserModel>(QUERY_KEYS.USER);
-  const isAuth = user && user.isAuth;
+  const isAuth = user !== undefined && user?.isAuth;
 
   const onLogoutClick = () => logoutUser(queryClient);
   const onSignIn = () => navigate(HISTORY_KEYS.LOGIN);

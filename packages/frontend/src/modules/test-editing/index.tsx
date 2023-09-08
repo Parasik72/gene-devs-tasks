@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material';
 import { ITestEditingParams } from './test-editing.types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetFullTest } from '../common/queries/tests.query';
+import { useGetTestForEdit } from '../common/queries/tests.query';
 import { SPACES, SPACESNUMBER } from '../theme/spaces.const';
 import { QuestionListItemComponent } from '../common/components/question-list-item/question-list-item.component';
 import { Popup } from '../common/popup/popup.component';
@@ -19,7 +19,7 @@ import { MainLayoutComponent } from '../common/components/main-layout/main-layou
 
 export const TestEditingPageComponent = () => {
   const { testId } = useParams<ITestEditingParams>();
-  const { data, isLoading } = useGetFullTest(testId || '');
+  const { data, isLoading } = useGetTestForEdit(testId || '');
   const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false);
   const [isEditTestOpen, setIsEditTestOpen] = useState(false);
   const editTestmutation = useEditTest(() => setIsEditTestOpen(false));

@@ -1,7 +1,12 @@
 import { AxiosResponse } from 'axios';
 import { HttpService } from '../http';
 import { BACKEND_KEYS } from '../../constants/app-keys.constants';
-import { FullTestReceivingDto, TestsReceivingDto } from './dto/tests-from-server.dto';
+import { 
+  AssessmentReceivingDto, 
+  TestForEditReceivingDto, 
+  TestForPassingReceivingDto, 
+  TestsReceivingDto 
+} from './dto/tests-from-server.dto';
 import TestModel, { createTestModel } from './test.model';
 import { CreateTestDto } from './dto/create-test.dto';
 import { AddAnswerDto } from './dto/add-answer.dto';
@@ -10,6 +15,8 @@ import { AddQuestionDto } from './dto/add-question.dto';
 import { UpdateTestDto } from './dto/update-test.dto';
 import { UpdateQuestionDto } from './dto/update-question.dto';
 import { AddOptionDto } from './dto/add-option.dto';
+import { SubmitTestDto } from './dto/submit-test.dto';
+import AssessmentModel, { createAssessmentModel } from './assessment.model';
 
 class TestsService {
   constructor(private httpService: HttpService) {}
@@ -37,9 +44,16 @@ class TestsService {
     return response.data;
   }
 
-  async getFullTest(testId: string): Promise<TestModel> {
-    const response: AxiosResponse<FullTestReceivingDto> = await this.httpService.get({
+  async getTestForEdit(testId: string): Promise<TestModel> {
+    const response: AxiosResponse<TestForEditReceivingDto> = await this.httpService.get({
       url: BACKEND_KEYS.EDIT_TEST.replace(':testId', testId)
+    }, true);
+    return createTestModel(response.data);
+  }
+
+  async getTestForPassing(testId: string): Promise<TestModel> {
+    const response: AxiosResponse<TestForPassingReceivingDto> = await this.httpService.get({
+      url: BACKEND_KEYS.PASSING_TEST.replace(':testId', testId)
     }, true);
     return createTestModel(response.data);
   }
@@ -102,6 +116,28 @@ class TestsService {
       url: BACKEND_KEYS.REMOVE_TEST.replace(':testId', testId)
     }, true);
     return response.data;
+  }
+
+  async submitTest(testId: string, dto: SubmitTestDto): Promise<AssessmentReceivingDto> {
+    const response: AxiosResponse<AssessmentReceivingDto> = await this.httpService.create({
+      url: BACKEND_KEYS.SUBMIT_TEST.replace(':testId', testId),
+      data: dto
+    }, true);
+    return response.data;
+  }
+
+  async getAssessment(assessmentId: string): Promise<AssessmentModel> {
+    const response: AxiosResponse<AssessmentReceivingDto> = await this.httpService.get({
+      url: BACKEND_KEYS.ONE_ASSESSMENT.replace(':assessmentId', assessmentId)
+    }, true);
+    return createAssessmentModel(response.data);
+  }
+
+  async getAssessmentsByTestId(testId: string): Promise<AssessmentModel[]> {
+    const response: AxiosResponse<AssessmentReceivingDto[]> = await this.httpService.get({
+      url: BACKEND_KEYS.ASSESSMENTS.replace(':testId', testId)
+    }, true);
+    return response.data.map((assessment) => createAssessmentModel(assessment)); 
   }
 }
 

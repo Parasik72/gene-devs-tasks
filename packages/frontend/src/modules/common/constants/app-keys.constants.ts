@@ -6,6 +6,9 @@ export const QUERY_KEYS = {
   USER: 'USER',
   TESTS: 'TESTS',
   EDIT_TEST: 'EDIT_TEST',
+  PASSING_TEST: 'PASSING_TEST',
+  ASSESSMENT: 'ASSESSMENT',
+  ASSESSMENTS: 'ASSESSMENTS'
 };
 
 export const BACKEND_KEYS = {
@@ -16,6 +19,7 @@ export const BACKEND_KEYS = {
   CREATE_TEST: 'tests/create',
   UPDATE_TEST: 'tests/update/:testId',
   EDIT_TEST: 'tests/edit/:testId',
+  PASSING_TEST: 'tests/:testId',
   ADD_ANSWER: 'tests/add-answer/:questionId',
   REMOVE_ANSWER: 'tests/delete-answer/:answerId',
   ADD_QUESTION: 'tests/add-question/:testId',
@@ -24,18 +28,27 @@ export const BACKEND_KEYS = {
   REMOVE_OPTION: 'tests/delete-option/:optionId',
   REMOVE_QUESTION: 'tests/delete-question/:questionId',
   REMOVE_TEST: 'tests/delete/:testId',
+  SUBMIT_TEST: 'tests/pass-test/:testId',
+  ONE_ASSESSMENT: 'tests/assessment/:assessmentId',
+  ASSESSMENTS: 'tests/assessments/:testId',
 };
 
 export const ROUTER_KEYS = {
   ROOT: '/',
   REGISTRATION: '/auth/registration',
   LOGIN: '/auth/login',
-  EDIT_TEST: '/edit-test/:testId'
+  EDIT_TEST: '/edit-test/:testId',
+  PASSING_TEST: '/passing-test/:testId',
+  ASSESSMENT: '/assessments/:assessmentId',
+  TEST_ASSESSMENTS: '/test-assessments/:testId',
 };
 
 export const HISTORY_KEYS = {
   ROOT: '/',
   REGISTRATION: '/auth/registration',
   LOGIN: '/auth/login',
-  EDIT_TEST: '/edit-test/:testId'
+  EDIT_TEST: '/edit-test/:testId',
+  PASSING_TEST: '/passing-test/:testId',
+  ASSESSMENT: '/assessments/:assessmentId',
+  TEST_ASSESSMENTS: '/test-assessments/:testId',
 };

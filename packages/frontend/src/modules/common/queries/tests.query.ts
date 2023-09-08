@@ -10,10 +10,34 @@ export const useGetTests = () => {
   );
 };
 
-export const useGetFullTest = (testId: string) => {
+export const useGetTestForEdit = (testId: string) => {
   return useQuery(
-    QUERY_KEYS.EDIT_TEST, 
-    async () => testsService.getFullTest(testId),
+    [QUERY_KEYS.EDIT_TEST, testId], 
+    async () => testsService.getTestForEdit(testId),
+    { onError: onErrorAlert }
+  );
+};
+
+export const useGetTestForPassing = (testId: string) => {
+  return useQuery(
+    [QUERY_KEYS.PASSING_TEST, testId], 
+    async () => testsService.getTestForPassing(testId),
+    { onError: onErrorAlert }
+  );
+};
+
+export const useGetAssessment = (assessmentId: string) => {
+  return useQuery(
+    [QUERY_KEYS.ASSESSMENT, assessmentId], 
+    async () => testsService.getAssessment(assessmentId),
+    { onError: onErrorAlert }
+  );
+};
+
+export const useGetAssessmentsByTestId = (testId: string) => {
+  return useQuery(
+    [QUERY_KEYS.ASSESSMENTS, testId], 
+    async () => testsService.getAssessmentsByTestId(testId),
     { onError: onErrorAlert }
   );
 };

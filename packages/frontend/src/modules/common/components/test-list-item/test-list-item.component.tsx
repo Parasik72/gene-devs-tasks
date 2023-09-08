@@ -15,30 +15,46 @@ export const TestListItemComponent: FC<ITestListItem> = ({ test }) => {
   const isCreator = user && user.email === test.createdBy;
   const isTestEmpty = test.questions.length === 0;
   const navigate = useNavigate();
+
   const onEdit = () => navigate(HISTORY_KEYS.EDIT_TEST.replace(':testId', test._id));
+  const onAssessments = () => navigate(HISTORY_KEYS.TEST_ASSESSMENTS.replace(':testId', test._id));
+  const onStart = () => navigate(HISTORY_KEYS.PASSING_TEST.replace(':testId', test._id));
+
   return (
     <Paper sx={{
       padding: SPACES.m,
       width: '100%'
     }}>
-      <Box display="flex" justifyContent="space-between">
+      <Box display="flex" justifyContent="space-between" gap={SPACES.m}>
         <Stack spacing={SPACESNUMBER.xs}>
           <Typography variant='h5' fontWeight={WEIGHTS.bold}>{test.title}</Typography>
           <Typography variant='h6'>{test.description}</Typography>
           <Typography variant='h6' fontSize={SIZESNUMBER.xxl}>
-            Amount of questions: {test.questions.length}
+            Amount of the questions: {test.questions.length}
           </Typography>
         </Stack>
         <Box display="flex" justifyContent="space-between" flexDirection="column">
           <Box display="flex" gap={SPACES.s} flex={1} alignItems="center">
-            {isCreator && <Button fullWidth variant='contained' onClick={onEdit}>Edit</Button>}
+            {isCreator && <Button variant='contained' onClick={onEdit}>Edit</Button>}
             {user && user.isAuth && (
-              <Button fullWidth variant='contained' disabled={isTestEmpty}>
-                Start
-              </Button>
+              <>
+                <Button 
+                  variant='contained' 
+                  onClick={onAssessments}
+                >
+                  Results
+                </Button>
+                <Button 
+                  variant='contained' 
+                  disabled={isTestEmpty}
+                  onClick={onStart}
+                >
+                  Start
+                </Button>
+              </>
             )}
           </Box>
-          <Typography variant='h6' fontSize={SIZESNUMBER.xxl}>
+          <Typography alignSelf="end" variant='h6' fontSize={SIZESNUMBER.xxl}>
             <b>Created by:</b> {test.createdBy}
           </Typography>
         </Box>

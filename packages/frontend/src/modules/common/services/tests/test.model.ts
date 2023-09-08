@@ -1,4 +1,4 @@
-import { FullTestReceivingDto, TestsReceivingDto } from './dto/tests-from-server.dto';
+import { TestForEditReceivingDto, TestForPassingReceivingDto, TestsReceivingDto } from './dto/tests-from-server.dto';
 
 export interface IOption {
   _id: string;
@@ -26,7 +26,9 @@ class TestModel {
   }
 }
 
-const createTestModel = (testFromServer: TestsReceivingDto | FullTestReceivingDto) =>
+const createTestModel = (
+  testFromServer: TestsReceivingDto | TestForEditReceivingDto | TestForPassingReceivingDto
+) =>
   new TestModel(
     testFromServer._id,
     testFromServer.title,

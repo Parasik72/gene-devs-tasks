@@ -1,7 +1,19 @@
 import { useMutation, useQueryClient } from 'react-query';
-import { AddAnswerSending, AddOptionSending, AddQuestionSending, ITestCreationSending, ITestUpdateSending, RemoveAnswerSending, RemoveOptionSending, RemoveQuestionSending, RemoveTestSending, UpdateQuestionSending } from './tests.mutation.types';
+import { 
+  AddAnswerSending, 
+  AddOptionSending, 
+  AddQuestionSending, 
+  ITestCreationSending, 
+  ITestUpdateSending, 
+  RemoveAnswerSending, 
+  RemoveOptionSending, 
+  RemoveQuestionSending,
+  RemoveTestSending, 
+  SubmitTestSending, 
+  UpdateQuestionSending 
+} from './tests.mutation.types';
 import { testsService } from '../../services/tests/tests.service';
-import { TestsReceivingDto } from '../../services/tests/dto/tests-from-server.dto';
+import { AssessmentReceivingDto, TestsReceivingDto } from '../../services/tests/dto/tests-from-server.dto';
 import { QUERY_KEYS } from '../../constants/app-keys.constants';
 import { onErrorAlert } from '../on-error.alert';
 
@@ -107,4 +119,13 @@ export const useRemoveTest = (callback?: () => void) => {
     if (callback) callback();
   };
   return useMutation(removeTestFunc, { onSuccess, onError: onErrorAlert });
+};
+
+export const useSubmitTest = (callback?: (assessmentId: string) => void) => {
+  const submitTestFunc = (dto: SubmitTestSending) => 
+    testsService.submitTest(dto.testId, { answers: dto.answers });
+  const onSuccess = (data: AssessmentReceivingDto) => {
+    if (callback) callback(data._id);
+  };
+  return useMutation(submitTestFunc, { onSuccess, onError: onErrorAlert });
 };

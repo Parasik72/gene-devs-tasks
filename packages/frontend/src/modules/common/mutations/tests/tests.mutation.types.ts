@@ -1,3 +1,4 @@
+import { ITestAnswer } from '../../../passing-test/passing-test.types';
 import { ITestFormCreation, ITestFormEditing } from '../../components/test-form/test-form.types';
 
 export interface ITestCreationSending {
@@ -42,5 +43,10 @@ export interface RemoveQuestionSending {
 }
 
 export interface RemoveTestSending {
+  testId: string;
+}
+
+export interface SubmitTestSending {
+  answers: ITestAnswer[];
   testId: string;
 }
