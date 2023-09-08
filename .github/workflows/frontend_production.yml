@@ -1,32 +1,32 @@
-name: Prod FE workflow
+# name: Prod FE workflow
 
-on:
-  push:
-    branches: [ "master" ]
-    paths:
-      - packages/frontend/**
+# on:
+#   push:
+#     branches: [ "master" ]
+#     paths:
+#       - packages/frontend/**
 
-jobs:
-  deploy:
-    runs-on: self-hosted
-    defaults:
-      run:
-        working-directory: ./packages/frontend
-    strategy:
-      matrix:
-        node-version: [18.x]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: ./packages/frontend/package-lock.json
-      - name: Install deps
-        run: npm ci --legacy-peer-deps
-      - name: Build FE
-        run: npm run build
-      # - name: Copy .env.prod to working directory
-      #   run: cp ~/actions-runner/_work/envs/.env.prod.front .env.prod
-      # - name: Restart FE
-      #   run: pm2 restart frontend
+# jobs:
+#   deploy:
+#     runs-on: self-hosted
+#     defaults:
+#       run:
+#         working-directory: ./packages/frontend
+#     strategy:
+#       matrix:
+#         node-version: [18.x]
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: ${{ matrix.node-version }}
+#           cache: 'npm'
+#           cache-dependency-path: ./packages/frontend/package-lock.json
+#       - name: Install deps
+#         run: npm ci --legacy-peer-deps
+#       - name: Build FE
+#         run: npm run build
+#       - name: Copy .env.prod to working directory
+#         run: cp ~/actions-runner/_work/envs/.env.prod.front .env.prod
+#       - name: Restart FE
+#         run: pm2 restart frontend
