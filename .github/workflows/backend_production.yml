@@ -21,6 +21,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
+          cache-dependency-path: ./packages/backend/package-lock.json
       - name: Install deps
         run: npm ci --legacy-peer-deps
       - name: Build BE
