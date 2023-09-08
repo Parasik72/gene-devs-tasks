@@ -7,6 +7,7 @@ import { IAssessmentParams } from './asessment.types';
 import { useGetAssessment } from '../common/queries/tests.query';
 import { HISTORY_KEYS } from '../common/constants/app-keys.constants';
 import { AssessmentResultComponent } from '../common/components/assessment-result/assessment-result.component';
+import { LoaderComponent } from '../common/components/loader/loader.component';
 
 export const AssessmentPageComponent = () => {
   const { assessmentId } = useParams<IAssessmentParams>();
@@ -15,6 +16,9 @@ export const AssessmentPageComponent = () => {
 
   return (
     <MainLayoutComponent>
+      {isLoading && (
+        <LoaderComponent />
+      )}
       {!isLoading && data && (
         <Box 
           marginTop={SPACES.xxl} 

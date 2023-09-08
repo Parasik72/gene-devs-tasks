@@ -3,6 +3,7 @@ import { IOptionListItemComponent } from './option-list-item.types';
 import { Box, Button, Card, Checkbox, Typography } from '@mui/material';
 import { SPACESNUMBER } from '../../../theme/spaces.const';
 import { useAddAnswer, useRemoveAnswer, useRemoveOption } from '../../mutations/tests/tests.mutation';
+import { WEIGHTS } from '../../../theme/fonts.const';
 
 export const OptionListItemComponent: FC<IOptionListItemComponent> = ({ option, questionId }) => {
   const [isAnswer, setIsAnswer] = useState(option.isAnswer);
@@ -24,12 +25,22 @@ export const OptionListItemComponent: FC<IOptionListItemComponent> = ({ option, 
         display="flex" 
         justifyContent="space-between"
         pl={SPACESNUMBER.xxs}
-        gap={SPACESNUMBER.l}
+        gap={{ md: SPACESNUMBER.l, sm: SPACESNUMBER.xxs }}
+        flexDirection={{ md: 'row', sm: 'column', xs: 'column' }}
       >
-        <Typography variant='h6' alignSelf="center">{option.text}</Typography>
-        <Box display="flex" gap={SPACESNUMBER.xxs}>
-          <Typography variant='h6' alignSelf="center">Is answer: </Typography>
-          <Checkbox checked={isAnswer} onClick={onAnswerChange}/>
+        <Typography variant='h6' alignSelf='center' py={SPACESNUMBER.xxs} fontWeight={WEIGHTS.bold}>
+          {option.text}
+        </Typography>
+        <Box 
+          display="flex" 
+          gap={SPACESNUMBER.xxs}
+          justifyContent={{ md: 'flex-start', sm: 'center', xs: 'center' }}
+          flexDirection={{ sm: 'row', xs: 'column' }}
+        >
+          <Box display='flex' justifyContent={{ sm: 'flex-start', xs: 'center' }}>
+            <Typography variant='h6' alignSelf="center" minWidth={100}>Is answer: </Typography>
+            <Checkbox checked={isAnswer} onClick={onAnswerChange}/>
+          </Box>
           <Button 
             variant='contained'
             color="error"

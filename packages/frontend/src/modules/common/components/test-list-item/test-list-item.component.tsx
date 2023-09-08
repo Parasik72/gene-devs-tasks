@@ -25,7 +25,12 @@ export const TestListItemComponent: FC<ITestListItem> = ({ test }) => {
       padding: SPACES.m,
       width: '100%'
     }}>
-      <Box display="flex" justifyContent="space-between" gap={SPACES.m}>
+      <Box 
+        display="flex" 
+        justifyContent="space-between" 
+        gap={SPACES.m}
+        flexDirection={{ md: 'row', sm: 'column', xs: 'column' }}
+      >
         <Stack spacing={SPACESNUMBER.xs}>
           <Typography variant='h5' fontWeight={WEIGHTS.bold}>{test.title}</Typography>
           <Typography variant='h6'>{test.description}</Typography>
@@ -33,7 +38,12 @@ export const TestListItemComponent: FC<ITestListItem> = ({ test }) => {
             Amount of the questions: {test.questions.length}
           </Typography>
         </Stack>
-        <Box display="flex" justifyContent="space-between" flexDirection="column">
+        <Box 
+          display="flex" 
+          justifyContent="space-between" 
+          flexDirection={{ md: 'column', sm: 'row', xs: 'column' }}
+          gap={{ sm: 0, xs: SPACES.s }}
+        >
           <Box display="flex" gap={SPACES.s} flex={1} alignItems="center">
             {isCreator && <Button variant='contained' onClick={onEdit}>Edit</Button>}
             {user && user.isAuth && (
@@ -54,7 +64,7 @@ export const TestListItemComponent: FC<ITestListItem> = ({ test }) => {
               </>
             )}
           </Box>
-          <Typography alignSelf="end" variant='h6' fontSize={SIZESNUMBER.xxl}>
+          <Typography alignSelf={{ sm: 'end', xs: 'start' }} variant='h6' fontSize={SIZESNUMBER.xxl}>
             <b>Created by:</b> {test.createdBy}
           </Typography>
         </Box>

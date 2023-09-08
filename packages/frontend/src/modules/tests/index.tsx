@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Box, Button, Paper, Typography } from '@mui/material';
 import { SPACES } from '../theme/spaces.const';
 import { useGetTests } from '../common/queries/tests.query';
-import { TestListItemComponent } from '../common/components/test-list-item/test-list-item.component';
 import { useQueryClient } from 'react-query';
 import UserModel from '../common/services/user/user.model';
 import { QUERY_KEYS } from '../common/constants/app-keys.constants';
@@ -13,6 +12,9 @@ import { testCreationFormInitialVariables } from '../common/components/test-form
 import { useCreateTest } from '../common/mutations/tests/tests.mutation';
 import { testFormValidate } from '../common/validators/test.validator';
 import { MainLayoutComponent } from '../common/components/main-layout/main-layout.component';
+import { TestListItemComponent } from '../common/components/test-list-item/test-list-item.component';
+import { LoaderComponent } from '../common/components/loader/loader.component';
+import { WEIGHTS } from '../theme/fonts.const';
 
 export const TestsPageComponent = () => {
   const queryClient = useQueryClient();
@@ -31,21 +33,47 @@ export const TestsPageComponent = () => {
   return (
     <MainLayoutComponent>
       <Paper sx={{
-        padding: SPACES.m,
         marginTop: SPACES.xxl,
-        display: 'flex',
-        justifyContent: 'space-between'
       }}>
-        <Typography variant='h4'>All the tests:</Typography>
-        {user && user.isAuth && (
-          <Button variant='contained' onClick={onTestCreationClick}>
+        <Box
+          padding={SPACES.m}
+          display='flex'
+          justifyContent='space-between'
+          flexDirection={{ sm: 'row', xs: 'column' }}
+          gap={SPACES.m}
+          zIndex={1}
+        >
+          <Typography 
+            variant='h4' 
+            alignSelf={{ sm: 'start', xs: 'center' }}
+          >
+            All the tests
+          </Typography>
+          {user && user.isAuth && (
+            <Button variant='contained' onClick={onTestCreationClick}>
               Create test
-          </Button>
-        )}
+            </Button>
+          )}
+        </Box>
       </Paper>
+      {isLoading && (
+        <LoaderComponent />
+      )}
       {!isLoading && data && data.length !== 0 && (
         <Box marginTop={SPACES.xl} display="flex" flexDirection="column" gap={SPACES.m}>
           {data.map((test, index) => <TestListItemComponent key={index} test={test}/>)}
+        </Box>
+      )}
+      {!isLoading && data && data.length === 0 && (
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          position="absolute"
+          width="100%"
+          height="100%"
+        >
+          <Typography variant='h3' fontWeight={WEIGHTS.bold}>There are no any tests</Typography>
         </Box>
       )}
       <Popup 

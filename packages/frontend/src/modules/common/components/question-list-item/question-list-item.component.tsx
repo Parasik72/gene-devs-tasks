@@ -39,6 +39,7 @@ export const QuestionListItemComponent: FC<IQuestionListItemComponent> = ({ ques
           display="flex" 
           justifyContent="center"
           gap={SPACESNUMBER.s}
+          flexDirection={{ sm: 'row', xs: 'column' }}
         >
           <Button variant='contained' onClick={() => setIsAddOptionOpen(true)}>
             Add option
