@@ -161,7 +161,7 @@ export class TestService {
     return this.testRepository.getAssessmentsByTestIdAndUserId(testId, userId);
   }
 
-  async generateAssessment(testId: string, user: IUser, answers: IUserAnswer[])
+  async generateAssessment(testId: string, user: IUser, answers: IUserAnswer[], timer: number)
   : Promise<IAssessment> {
     const testWithOptionsAndAnswers = 
       (await this.testRepository.getTestWithQuestionOptionsAndAnswersIds(testId))[0];
@@ -195,7 +195,8 @@ export class TestService {
     return this.testRepository.createAssessment({
       test: testWithOptionsAndAnswers._id,
       candidate: user._id,
-      score: precentageOfScore
+      score: precentageOfScore,
+      timer
     });
   }
 

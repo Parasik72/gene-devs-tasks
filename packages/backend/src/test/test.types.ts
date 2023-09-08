@@ -87,6 +87,7 @@ export interface ICreateAssessment {
   test: ObjectId;
   candidate: ObjectId;
   score: number;
+  timer: number;
 }
 
 export interface ITestWithOptions {
