@@ -11,20 +11,22 @@ import { TestQuestionComponent } from '../common/components/test-question/test-q
 import { storeTestData } from './passing-test.functions';
 import { useSubmitTest } from '../common/mutations/tests/tests.mutation';
 import { LoaderComponent } from '../common/components/loader/loader.component';
+import { TimerComponent } from '../common/components/timer/timer.component';
 
 export const PassingTestPageComponent = () => {
+  const [time, setTime] = useState(0);
   const { testId } = useParams<ITestPassingParams>();
   const { data, isLoading } = useGetTestForPassing(testId || '');
   const [testData, setTestData] = useState<ITestData>({ answers: [] });
   const navigate = useNavigate();
-  const mutation = useSubmitTest((assessmentId: string) => {
-    navigate(HISTORY_KEYS.ASSESSMENT.replace(':assessmentId', assessmentId));
-  });
   const callback = storeTestData(testData, setTestData);
 
   const onSubmitTest = () => {
-    mutation.mutate({ testId: testId!, answers: testData.answers });
+    mutation.mutate({ testId: testId!, answers: testData.answers, timer: time / 1000 });
   };
+  const mutation = useSubmitTest((assessmentId: string) => {
+    navigate(HISTORY_KEYS.ASSESSMENT.replace(':assessmentId', assessmentId));
+  });
 
   return (
     <MainLayoutComponent>
@@ -47,7 +49,10 @@ export const PassingTestPageComponent = () => {
             padding: SPACES.m
           }}>
             <Stack spacing={SPACESNUMBER.m}>
-              <Typography variant='h4' fontWeight={WEIGHTS.bold}>Passing the test</Typography>
+              <Box display="flex" justifyContent="space-between">
+                <Typography variant='h4' fontWeight={WEIGHTS.bold}>Passing the test</Typography>
+                <TimerComponent time={time} setTime={setTime}/>
+              </Box>
               <Typography variant='h5'>{data.title}</Typography>
             </Stack>
           </Paper>

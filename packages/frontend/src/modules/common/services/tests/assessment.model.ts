@@ -8,6 +8,7 @@ class AssessmentModel {
     public test: string | TestModel,
     public candidate: string | UserModel,
     public score: number,
+    public timer: number,
     public createdAt: string,
     public updatedAt: string
   ) {}
@@ -21,6 +22,7 @@ const createAssessmentModel = (
     assessmentFromServer.test, 
     assessmentFromServer.candidate,
     assessmentFromServer.score,
+    assessmentFromServer.timer,
     assessmentFromServer.createdAt,
     assessmentFromServer.updatedAt
   );
