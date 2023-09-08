@@ -12,11 +12,8 @@ export const arrayContains =
       try {
         const array = req.body[arrayKey];
         const mustContain = req.body[mustContainKey];
-        if (!array) {
-          throw new HttpException(`The field ${arrayKey.toString()} was not found`, 404);
-        }
-        if (!mustContain) {
-          throw new HttpException(`The field ${mustContainKey.toString()} was not found`, 404);
+        if (!array || !mustContain) {
+          return next();
         }
         let result = true;
         if (Array.isArray(mustContain)) {

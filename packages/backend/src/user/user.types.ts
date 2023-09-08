@@ -3,6 +3,7 @@ export interface ICreateUser {
   password: string;
 }
 
-export interface IAccessToken {
+export interface IUserAccess {
   accessToken: string;
+  email: string;
 }

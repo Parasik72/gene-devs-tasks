@@ -1,13 +1,16 @@
 import { ObjectId } from 'mongodb';
 import { TestRepository } from './test.repository';
 import { 
+  IAssessmentWithTestAndUser,
   IBulkWriteAddAnswerToQuestion,
   IBulkWriteAddOptionToQuestion,
   IBulkWriteAddQuestionToTest,
   IBulkWriteCreateOption, 
   IBulkWriteCreateQuestion, 
   ICreateOption, 
+  ICreateQuestion, 
   ICreateTest, 
+  IFullTest, 
   IPrepareQuestionForCreation, 
   IQuestionWithOptions, 
   ITestWithOptions, 
@@ -29,8 +32,12 @@ export class TestService {
     return this.testRepository.getAllTests();
   }
 
-  async getOneFullTestById(testId: string): Promise<ITestWithOptions> {
-    return (await this.testRepository.getOneFullTestById(testId))[0];
+  async getOneTestWithOptionsById(testId: string): Promise<ITestWithOptions> {
+    return (await this.testRepository.getOneTestWithOptionsById(testId))[0];
+  }
+
+  async getOneTestForEditingByIdAgg(testId: string): Promise<IFullTest> {
+    return (await this.testRepository.getOneTestForEditingByIdAgg(testId))[0];
   }
 
   async getOneById(id: string): Promise<ITest | null> {
@@ -88,8 +95,8 @@ export class TestService {
     };
   }
 
-  async createQuestion(data: IBulkWriteCreateQuestion) {
-    return (await this.testRepository.createQuestion(data)).insertedIds[0];
+  async createQuestion(data: ICreateQuestion) {
+    return this.testRepository.createQuestion(data);
   }
 
   async getOneQuestionById(questionId: string): Promise<IQuestion | null> {
@@ -144,6 +151,11 @@ export class TestService {
     return this.testRepository.getAssessmentsByTestId(testId);
   }
 
+  async getOneAssessmentById(assessmentId: string)
+  : Promise<IAssessmentWithTestAndUser> {
+    return (await this.testRepository.getOneAssessmentById(assessmentId))[0];
+  }
+
   async getAssessmentsByTestIdAndUserId(testId: string, userId: string)
   : Promise<IAssessment[]> {
     return this.testRepository.getAssessmentsByTestIdAndUserId(testId, userId);
@@ -189,6 +201,10 @@ export class TestService {
 
   isUserTestCreator(test: ITest, user: IUser): boolean {
     return test.createdBy.toHexString() === user._id.toHexString();
+  }
+
+  isUserAssessmentCandidate(candidateId: ObjectId, user: IUser): boolean {
+    return candidateId.toHexString() === user._id.toHexString();
   }
 
   isAnswerInQuestion(question: IQuestion, answerId: string): IOption | undefined {

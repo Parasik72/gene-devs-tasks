@@ -19,7 +19,16 @@ export const getAssessmentByTestIdAgg =
         }
       },
       { $unwind: { path: '$candidate' } },
-      { $unset: 'candidate.password' }
+      { $unset: 'candidate.password' },
+      {
+        $lookup: {
+          from: 'tests',
+          localField: 'test',
+          foreignField: '_id',
+          as: 'test'
+        }
+      },
+      { $unwind: { path: '$test' } },
     ]
   );
 
@@ -36,6 +45,45 @@ export const getAssessmentByTestIdAndUserIdAgg =
           )
         }
       },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'candidate',
+          foreignField: '_id',
+          as: 'candidate'
+        }
+      },
+      { $unwind: { path: '$candidate' } },
+      { $unset: 'candidate.password' },
+      {
+        $lookup: {
+          from: 'tests',
+          localField: 'test',
+          foreignField: '_id',
+          as: 'test'
+        }
+      },
+      { $unwind: { path: '$test' } }
+    ]
+  );
+
+export const getAssessmentByIdAgg =
+  (assessmentId: string) => (
+    [
+      {
+        $match: {
+          _id: new ObjectId(assessmentId)
+        }
+      },
+      {
+        $lookup: {
+          from: 'tests',
+          localField: 'test',
+          foreignField: '_id',
+          as: 'test'
+        }
+      },
+      { $unwind: { path: '$test' } },
       {
         $lookup: {
           from: 'users',

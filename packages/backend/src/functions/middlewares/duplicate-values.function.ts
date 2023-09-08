@@ -23,7 +23,7 @@ export const duplicateValues =
       try {
         const array = req.body[arrayKey];
         if (!array) {
-          throw new HttpException(`The field ${arrayKey.toString()} was not found`, 404);
+          return next();
         }
         if (hasDuplicates(array, keyExtractor)) {
           throw new HttpException(errMsg, 400);

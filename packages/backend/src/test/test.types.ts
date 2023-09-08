@@ -1,9 +1,14 @@
 import { ObjectId } from 'mongodb';
+import { ITest } from './models/test.model';
 
 export interface ICreateTest {
   title: string;
   description: string;
   createdBy: ObjectId;
+}
+
+export interface ICreateQuestion {
+  title: string;
 }
 
 export interface IBulkWriteCreateOption {
@@ -127,4 +132,35 @@ export interface IQuestionWithOptions {
 
 export interface IMessage {
   message: string;
+}
+
+export interface IFullTest {
+  _id: ObjectId;
+  title: string;
+  description: string;
+  questions: {
+    _id: ObjectId;
+    title: string;
+    options: {
+      _id: ObjectId;
+      text: string;
+    } [];
+    answers: {
+      _id: ObjectId;
+      text: string;
+    } [];
+  } []
+  createdBy: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface IAssessmentWithTestAndUser {
+  _id: ObjectId;
+  test: ITest;
+  candidate: {
+    _id: ObjectId;
+    email: string;
+  };
+  score: number;
 }
