@@ -16,6 +16,7 @@ import { IQuestionFormCreation, QuestionFormActions } from '../common/components
 import { addQuestionFormInitialVariables } from '../common/components/question-form/question-form.constants';
 import { HISTORY_KEYS } from '../common/constants/app-keys.constants';
 import { MainLayoutComponent } from '../common/components/main-layout/main-layout.component';
+import { LoaderComponent } from '../common/components/loader/loader.component';
 
 export const TestEditingPageComponent = () => {
   const { testId } = useParams<ITestEditingParams>();
@@ -39,6 +40,9 @@ export const TestEditingPageComponent = () => {
 
   return (
     <MainLayoutComponent>
+      {isLoading && (
+        <LoaderComponent />
+      )}
       {!isLoading && data && (
         <Box 
           marginTop={SPACES.xxl} 
@@ -61,6 +65,7 @@ export const TestEditingPageComponent = () => {
                 display="flex"
                 justifyContent="center"
                 gap={SPACESNUMBER.s}
+                flexDirection={{ sm: 'row', xs: 'column' }}
               >
                 <Button variant='contained' onClick={() => setIsAddQuestionOpen(true)}>
                     Add question

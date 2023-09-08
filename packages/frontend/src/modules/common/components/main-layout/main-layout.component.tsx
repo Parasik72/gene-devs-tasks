@@ -5,7 +5,11 @@ import { IMainLayoutComponent } from './main-layout.types';
 
 export const MainLayoutComponent: FC<IMainLayoutComponent> = ({ children }) => {
   return (
-    <Container>
+    <Container sx={{
+      position: 'relative',
+      minHeight: '100%',
+      overflow: 'hidden'
+    }}>
       <Box 
         marginTop={SPACES.xxl}
         display="flex"

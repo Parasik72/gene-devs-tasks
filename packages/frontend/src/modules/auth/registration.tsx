@@ -6,6 +6,7 @@ import { AuthFormActions, AuthFormTitles, IAuthFormRegistration } from './auth-f
 import { authRegistrationFormInitialVariables, authSecondButtonBack } from './auth.constants';
 import { authFormValidate } from '../common/validators/auth.validator';
 import { useRegisterMutation } from '../common/mutations/user/user.mutations';
+import { Container } from '@mui/material';
 
 export const RegistrationPageContainer = () => {
   const navigate = useNavigate();
@@ -15,18 +16,20 @@ export const RegistrationPageContainer = () => {
   };
 
   return (
-    <ContainerCenterComponent>
-      <AuthFormComponent
-        data={{
-          type: AuthFormActions.REGISTRATION,
-          formTitle: AuthFormTitles.REGISTRATION,
-          initialValues: authRegistrationFormInitialVariables()
-        }}
-        secondBtn={authSecondButtonBack(navigate)}
-        onSubmit={onSubmit}
-        validate={authFormValidate}
-        title="Registration"
-      />
-    </ContainerCenterComponent>
+    <Container>
+      <ContainerCenterComponent>
+        <AuthFormComponent
+          data={{
+            type: AuthFormActions.REGISTRATION,
+            formTitle: AuthFormTitles.REGISTRATION,
+            initialValues: authRegistrationFormInitialVariables()
+          }}
+          secondBtn={authSecondButtonBack(navigate)}
+          onSubmit={onSubmit}
+          validate={authFormValidate}
+          title="Registration"
+        />
+      </ContainerCenterComponent>
+    </Container>
   );
 };

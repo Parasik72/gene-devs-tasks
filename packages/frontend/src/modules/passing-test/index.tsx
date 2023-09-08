@@ -10,6 +10,7 @@ import { HISTORY_KEYS } from '../common/constants/app-keys.constants';
 import { TestQuestionComponent } from '../common/components/test-question/test-question.component';
 import { storeTestData } from './passing-test.functions';
 import { useSubmitTest } from '../common/mutations/tests/tests.mutation';
+import { LoaderComponent } from '../common/components/loader/loader.component';
 
 export const PassingTestPageComponent = () => {
   const { testId } = useParams<ITestPassingParams>();
@@ -27,6 +28,9 @@ export const PassingTestPageComponent = () => {
 
   return (
     <MainLayoutComponent>
+      {isLoading && (
+        <LoaderComponent />
+      )}
       {!isLoading && data && (
         <Box 
           marginTop={SPACES.xxl} 

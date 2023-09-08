@@ -24,7 +24,12 @@ export const NavbarComponent = () => {
       <Container>
         <Toolbar>
           <Box display="flex" justifyContent="space-between" width="100%">
-            <Typography onClick={onTitle} variant="h5" component={StyledNavbarTitle}>
+            <Typography 
+              onClick={onTitle} 
+              variant="h5" 
+              component={StyledNavbarTitle}
+              alignSelf='center'
+            >
               {APP_NAME}
             </Typography>
             {user && (
