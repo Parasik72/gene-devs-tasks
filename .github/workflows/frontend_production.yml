@@ -24,7 +24,9 @@ jobs:
           cache-dependency-path: ./packages/frontend/package-lock.json
       - name: Install deps
         run: npm ci --legacy-peer-deps
-      - name: Copy .env.prod to working directory
-        run: cp ~/actions-runner/_work/envs/.env.prod.front .env.prod
-      - name: Restart FE
-        run: pm2 restart frontend
+      - name: Build FE
+        run: npm run build
+      # - name: Copy .env.prod to working directory
+      #   run: cp ~/actions-runner/_work/envs/.env.prod.front .env.prod
+      # - name: Restart FE
+      #   run: pm2 restart frontend
