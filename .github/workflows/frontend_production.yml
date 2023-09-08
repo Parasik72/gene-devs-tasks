@@ -23,7 +23,7 @@ jobs:
           cache: 'npm'
           cache-dependency-path: ./packages/frontend/package.json
       - name: Install deps
-        run: npm i
+        run: npm install --no-audit --progress=false
       - name: Build FE
         run: npm run build
 #       - name: Copy .env.prod to working directory
