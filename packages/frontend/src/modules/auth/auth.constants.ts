@@ -1,5 +1,5 @@
 import { NavigateFunction } from 'react-router-dom';
-import { IAuthFormLogin, IAuthFormRegistration, IAuthFormSecondBtn } from './auth-form/auth-form.interfaces';
+import { IAuthFormLogin, IAuthFormRegistration, IAuthFormSecondBtn } from './auth-form/auth-form.types';
 import { HISTORY_KEYS } from '../common/constants/app-keys.constants';
 
 export const authRegistrationFormInitialVariables = (): IAuthFormRegistration => ({

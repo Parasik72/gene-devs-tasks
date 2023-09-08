@@ -1,7 +1,7 @@
 import React from 'react';
 import { Form, Formik } from 'formik';
 import { Button, Grid } from '@mui/material';
-import { IFormikForm } from './formik-form.interfaces';
+import { IFormikForm } from './formik-form.types';
 import { SIZESNUMBER } from '../../../theme/sizes.const';
 import { SPACES } from '../../../theme/spaces.const';
 

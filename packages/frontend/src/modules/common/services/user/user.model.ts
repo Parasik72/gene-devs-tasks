@@ -1,11 +1,12 @@
-import { UserFromServerDto } from './dto/user-from-server.dto';
-
 class UserModel {
-  constructor(public isAuth: boolean) {}
+  constructor(
+    public isAuth: boolean,
+    public email: string
+  ) {}
 }
 
-const createUserModel = (userFromServer: UserFromServerDto) =>
-  new UserModel(userFromServer.isAuth);
+const createUserModel = (isAuth: boolean, email: string) =>
+  new UserModel(isAuth, email);
 
 export { createUserModel };
 

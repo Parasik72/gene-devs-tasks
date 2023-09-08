@@ -1,31 +1,31 @@
-import { QueryClient } from 'react-query';
-import { ToastAlertTypes } from '../../constants/alert.constants';
-import { toastAlert } from '../../functions/alert.functions';
-import { HttpException } from '../../services/http.classes';
+import { QueryClient, useMutation, useQueryClient } from 'react-query';
 import { userService } from '../../services/user/user.service';
-import { IUserToken } from '../../services/user/user.types';
-import { IUserLoginSending, IUserRegistrationSending } from './user.mutation.interfaces';
-import { NavigateFunction } from 'react-router-dom';
+import { IUserLoginSending, IUserRegistrationSending } from './user.mutation.types';
+import { NavigateFunction, useNavigate } from 'react-router-dom';
 import { HISTORY_KEYS, QUERY_KEYS, STORAGE_KEYS } from '../../constants/app-keys.constants';
+import { IUserAccess } from '../../services/user/user.types';
+import { onErrorAlert } from '../on-error.alert';
 
-const onError = (err: HttpException) => toastAlert(ToastAlertTypes.error, err.message);
-
-export const useRegisterMutation = (queryClient: QueryClient, navigate: NavigateFunction) => {
+export const useRegisterMutation = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const registrateFunc = (dto: IUserRegistrationSending) => userService.registration(dto.data);
-  const onSuccess = (data: IUserToken) => {
+  const onSuccess = (data: IUserAccess) => {
     localStorage.setItem(STORAGE_KEYS.TOKEN, data.accessToken);
     navigate(HISTORY_KEYS.ROOT);
     queryClient.invalidateQueries([QUERY_KEYS.USER]);
   };
-  return { registrateFunc, onSuccess, onError };
+  return useMutation(registrateFunc, { onSuccess, onError: onErrorAlert });
 };
 
-export const useLoginMutation = (queryClient: QueryClient, navigate: NavigateFunction) => {
+export const useLoginMutation = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const loginFunc = (dto: IUserLoginSending) => userService.login(dto.data);
-  const onSuccess = (data: IUserToken) => {
+  const onSuccess = (data: IUserAccess) => {
     localStorage.setItem(STORAGE_KEYS.TOKEN, data.accessToken);
     navigate(HISTORY_KEYS.ROOT);
     queryClient.invalidateQueries([QUERY_KEYS.USER]);
   };
-  return { loginFunc, onSuccess, onError };
+  return useMutation(loginFunc, { onSuccess, onError: onErrorAlert });
 };

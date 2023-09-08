@@ -1,10 +1,10 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { AuthFormActions, AuthFormType, IAuthForm } from './auth-form.interfaces';
+import { AuthFormActions, AuthFormType, IAuthForm } from './auth-form.types';
 import { StyledAuthFormContainer, StyledAuthTitleContainer } from './auth-form.styled';
 import { FormikFormComponent } from '../../common/components/formik-form/formik-form.component';
 import { FormikFormInputComponent } from '../../common/components/formik-form-input/formik-form-input.component';
-import { FormikFormInputTypes } from '../../common/components/formik-form-input/formik-form-input.interfaces';
+import { FormikFormInputTypes } from '../../common/components/formik-form-input/formik-form-input.types';
 
 export function AuthFormComponent<T extends AuthFormType>({
   data,

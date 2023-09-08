@@ -1,3 +1,4 @@
 export interface UserFromServerDto {
-  isAuth: boolean;
+  accessToken: string;
+  email: string;
 }

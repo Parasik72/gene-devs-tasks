@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { FC } from 'react';
-import { IContainerCenterComponent } from './container-center.interface';
+import { IContainerCenterComponent } from './container-center.types';
 
 export const ContainerCenterComponent: FC<IContainerCenterComponent> = ({ children }) => (
   <Box>
