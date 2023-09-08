@@ -1,32 +1,32 @@
-name: Prod BE workflow
+# name: Prod BE workflow
 
-on:
-  push:
-    branches: [ "master" ]
-    paths:
-      - packages/backend/**
+# on:
+#   push:
+#     branches: [ "master" ]
+#     paths:
+#       - packages/backend/**
 
-jobs:
-  deploy:
-    runs-on: self-hosted
-    defaults:
-      run:
-        working-directory: ./packages/backend
-    strategy:
-      matrix:
-        node-version: [18.x]
-    steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
-        with:
-          node-version: ${{ matrix.node-version }}
-          cache: 'npm'
-          cache-dependency-path: ./packages/backend/package-lock.json
-      - name: Install deps
-        run: npm ci --legacy-peer-deps
-      - name: Build BE
-        run: npm run build
-      - name: Copy .env.prod to working directory
-        run: cp ~/actions-runner/_work/envs/.env.prod .env.prod
-      - name: Restart BE
-        run: pm2 restart backend
+# jobs:
+#   deploy:
+#     runs-on: self-hosted
+#     defaults:
+#       run:
+#         working-directory: ./packages/backend
+#     strategy:
+#       matrix:
+#         node-version: [18.x]
+#     steps:
+#       - uses: actions/checkout@v3
+#       - uses: actions/setup-node@v3
+#         with:
+#           node-version: ${{ matrix.node-version }}
+#           cache: 'npm'
+#           cache-dependency-path: ./packages/backend/package-lock.json
+#       - name: Install deps
+#         run: npm ci --legacy-peer-deps
+#       - name: Build BE
+#         run: npm run build
+#       - name: Copy .env.prod to working directory
+#         run: cp ~/actions-runner/_work/envs/.env.prod .env.prod
+#       - name: Restart BE
+#         run: pm2 restart backend
