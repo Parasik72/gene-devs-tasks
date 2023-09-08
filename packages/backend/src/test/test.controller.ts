@@ -280,7 +280,8 @@ class TestController {
     return this.testService.generateAssessment(
       test._id.toHexString(),
       user!,
-      req.body.answers
+      req.body.answers,
+      req.body.timer
     );
   }
 

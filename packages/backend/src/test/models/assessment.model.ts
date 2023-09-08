@@ -8,6 +8,7 @@ export interface IAssessment extends BaseModel {
   test: ObjectId;
   candidate: ObjectId;
   score: number;
+  timer: number;
 }
 
 export const AssessmentSchema = new mongoose.Schema<IAssessment>({
@@ -22,7 +23,11 @@ export const AssessmentSchema = new mongoose.Schema<IAssessment>({
   score: {
     type: Number,
     required: true
-  }
+  },
+  timer: {
+    type: Number,
+    required: true
+  },
 }, { timestamps: true });
 
 export const Assessment = mongoose.model<IAssessment>('assessments', AssessmentSchema);

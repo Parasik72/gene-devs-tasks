@@ -3,4 +3,5 @@ export interface PassTestDto {
     questionId: string;
     selected: string[];
   } [];
+  timer: number;
 }

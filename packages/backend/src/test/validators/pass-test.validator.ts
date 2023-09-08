@@ -5,5 +5,7 @@ export const passTestValidator = [
   validateObjectId('params', 'testId'),
   check('answers')
     .isArray().withMessage('Answers must be an array')
-    .not().isEmpty().withMessage('Answers cant be empty')
+    .not().isEmpty().withMessage('Answers cant be empty'),
+  check('timer')
+    .isNumeric().withMessage('Timer must be a number')
 ];
