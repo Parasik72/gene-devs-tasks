@@ -21,9 +21,9 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: ./packages/frontend/package-lock.json
+          cache-dependency-path: ./packages/frontend/package.json
       - name: Install deps
-        run: npm ci --legacy-peer-deps
+        run: npm i
       - name: Build FE
         run: npm run build
 #       - name: Copy .env.prod to working directory
