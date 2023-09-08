@@ -2,12 +2,14 @@ import React, { FC } from 'react';
 import { Paper, Stack, Typography } from '@mui/material';
 import { IAssessmentResultComponent } from './assessment-result.types';
 import { SPACES, SPACESNUMBER } from '../../../theme/spaces.const';
+import { getStringTime } from '../../functions/get-string-time.function';
 
 export const AssessmentResultComponent: FC<IAssessmentResultComponent> = ({ assessment }) => {
   const testTitle = typeof assessment.test !== 'string' ? assessment.test.title : assessment.test;
   const passedBy = typeof assessment.candidate !== 'string' ? assessment.candidate.email : assessment.candidate;
   const passedAt = new Date(assessment.createdAt || '').toLocaleDateString();
   const score = assessment.score.toFixed(2);
+  const timeStr = getStringTime(assessment.timer * 1000);
 
   return (
     <Paper sx={{
@@ -18,6 +20,7 @@ export const AssessmentResultComponent: FC<IAssessmentResultComponent> = ({ asse
         <Typography variant='h4'><b>Passed by: </b>{passedBy}</Typography>
         <Typography variant='h4'><b>Score: </b>{score}%</Typography>
         <Typography variant='h4'><b>Passed at: </b>{passedAt}</Typography>
+        <Typography variant='h4'><b>Passed time: </b>{timeStr}</Typography>
       </Stack>
     </Paper>
   );

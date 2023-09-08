@@ -36,6 +36,7 @@ export interface AssessmentReceivingDto {
   test: string | TestModel;
   candidate: string | UserModel;
   score: number;
+  timer: number;
   createdAt: string;
   updatedAt: string;
 }

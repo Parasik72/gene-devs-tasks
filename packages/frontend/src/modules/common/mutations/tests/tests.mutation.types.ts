@@ -49,4 +49,5 @@ export interface RemoveTestSending {
 export interface SubmitTestSending {
   answers: ITestAnswer[];
   testId: string;
+  timer: number;
 }

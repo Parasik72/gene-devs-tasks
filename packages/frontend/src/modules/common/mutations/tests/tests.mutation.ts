@@ -123,7 +123,7 @@ export const useRemoveTest = (callback?: () => void) => {
 
 export const useSubmitTest = (callback?: (assessmentId: string) => void) => {
   const submitTestFunc = (dto: SubmitTestSending) => 
-    testsService.submitTest(dto.testId, { answers: dto.answers });
+    testsService.submitTest(dto.testId, { answers: dto.answers, timer: dto.timer });
   const onSuccess = (data: AssessmentReceivingDto) => {
     if (callback) callback(data._id);
   };
