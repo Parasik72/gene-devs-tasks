@@ -29,6 +29,7 @@ import { IUser } from '../user/models/user.model';
 import { IAssessment } from './models/assessment.model';
 import { shuffleArray } from '../functions/shuffle-array.function';
 import { IQeustionType } from './models/question-type.model';
+import { UploadedFile } from 'express-fileupload';
 
 export class TestService {
   constructor(private readonly testRepository: TestRepository) {}

@@ -9,6 +9,7 @@ export interface IQuestion extends BaseModel {
   options: IOption[];
   answers: IOption[];
   questionType: ObjectId;
+  image: string | null;
 }
 
 export const QuestionSchema = new mongoose.Schema<IQuestion>({
@@ -33,6 +34,10 @@ export const QuestionSchema = new mongoose.Schema<IQuestion>({
   questionType: {
     type: mongoose.Schema.Types.ObjectId,
     ref: QuestionType.name,
+  },
+  image: {
+    type: String,
+    default: null
   }
 });
 
