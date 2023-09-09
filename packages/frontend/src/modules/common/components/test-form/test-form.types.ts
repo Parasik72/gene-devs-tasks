@@ -1,10 +1,10 @@
 export interface ITestFormCreation {
-  title: string;
+  title: string | null;
   description: string;
 }
 
 export interface ITestFormEditing {
-  title: string;
+  title: string | null;
   description: string;
 }
 

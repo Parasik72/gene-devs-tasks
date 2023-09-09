@@ -22,7 +22,7 @@ export const testFormValidate = (values: ITestFormCreation | ITestFormEditing) =
     resultErrors.description = descriptionErrors[0].msg;
   }
   if (
-    resultErrors.title.length === 0 &&
+    resultErrors.title?.length === 0 &&
     resultErrors.description.length === 0
   ) {
     return {};

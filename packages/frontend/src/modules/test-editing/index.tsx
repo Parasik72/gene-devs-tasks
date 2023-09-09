@@ -37,7 +37,8 @@ export const TestEditingPageComponent = () => {
     addQuestionMutation.mutate({ title: values.title, testId: testId!, image });
   };
   const onEditTestSubmit = async (values: ITestFormEditing) => {
-    editTestmutation.mutate({ data: values, testId: testId! });
+    const title = values.title === testData?.title ? null : values.title; 
+    editTestmutation.mutate({ data: { ...values, title }, testId: testId! });
   };
   const onRemoveTest = () => {
     removeTestMutation.mutate({ testId: testId! });

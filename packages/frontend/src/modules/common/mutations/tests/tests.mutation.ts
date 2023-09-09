@@ -20,7 +20,10 @@ import { onErrorAlert } from '../on-error.alert';
 
 export const useCreateTest = (callback?: () => void) => {
   const queryClient = useQueryClient();
-  const creationFunc = (dto: ITestCreationSending) => testsService.createTest(dto.data);
+  const creationFunc = (dto: ITestCreationSending) => testsService.createTest({
+    title: dto.data.title!,
+    description: dto.data.description
+  });
   const onSuccess = (data: TestsReceivingDto) => {
     queryClient.invalidateQueries([QUERY_KEYS.TESTS]);
     if (callback) callback();
