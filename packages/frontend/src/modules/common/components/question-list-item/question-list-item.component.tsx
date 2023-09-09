@@ -10,19 +10,29 @@ import { editQuestionFormInitialVariables } from '../question-form/question-form
 import { questionFormValidate } from '../../validators/test.validator';
 import { useChangeQuestionType, useRemoveQuestion, useUpdateQuestion } from '../../mutations/tests/tests.mutation';
 import { AddOptionComponent } from '../add-option/add-option.component';
-import { getQuestionTypeByText } from '../../functions/question.functions';
+import { getFullImgPathOnBackend, getQuestionTypeByText } from '../../functions/question.functions';
 import { QuestionTypes } from '../../types/question.types';
+import { ImageComponent } from '../image/image.component';
+import { WEIGHTS } from '../../../theme/fonts.const';
 
 export const QuestionListItemComponent: FC<IQuestionListItemComponent> 
 = ({ question, number, questionTypes, testId }) => {
   const [isEditQuestionOpen, setIsEditQuestionOpen] = useState(false);
   const [isAddOptionOpen, setIsAddOptionOpen] = useState(false);
-  const updateQuestionMutation = useUpdateQuestion(testId, () => setIsEditQuestionOpen(false));
+  const [image, setImage] = useState<File | null>(null);
+  const updateQuestionMutation = useUpdateQuestion(testId, () => {
+    setIsEditQuestionOpen(false);
+    setImage(null);
+  });
   const removeQuestionMutation = useRemoveQuestion(testId);
   const changeQuestionTypeMutation = useChangeQuestionType(testId);
 
   const onUpdateQuestionSubmit = async (values: IQuestionFormEditing) => {
-    updateQuestionMutation.mutate({ questionId: question._id, title: values.title });
+    const title = values.title === question.title ? null : values.title;
+    const removeImage = values.removeImage !== undefined && values.removeImage;
+    updateQuestionMutation.mutate({ 
+      questionId: question._id, title: title, image, removeCurrentImage: removeImage
+    });
   };
   const onRemoveQuestion = () => {
     removeQuestionMutation.mutate({ questionId: question._id });
@@ -30,6 +40,16 @@ export const QuestionListItemComponent: FC<IQuestionListItemComponent>
   const onQuestionTypeChange = (e: SelectChangeEvent<string>) => {
     changeQuestionTypeMutation.mutate({ questionId: question._id, questionTypeId: e.target.value });
   };
+  const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    setImage(e.target.files[0]);
+  };
+  const imageSrc = useMemo(() => {
+    if (question.image) return getFullImgPathOnBackend(question.image);
+    return null;
+  }, [question.image]);
 
   const currentQuestionType = useMemo(
     () => getQuestionTypeByText(question.questionType.text), 
@@ -57,8 +77,18 @@ export const QuestionListItemComponent: FC<IQuestionListItemComponent>
             ))}
           </Select>
         </Box>
-        <Typography variant='h6'>Options:</Typography>
-        {question.options.map((option) => 
+        {imageSrc && (
+          <Box display='flex' justifyContent='center'>
+            <ImageComponent src={imageSrc} />
+          </Box>
+        )}
+        <Box display='flex' gap={SPACES.s}>
+          <Typography variant='h6' fontWeight={WEIGHTS.bold}>Options:</Typography>
+          {question.options.length === 0 && (
+            <Typography variant='h6'>No options</Typography>
+          )}
+        </Box>
+        {question.options.length !== 0 && question.options.map((option) => 
           <OptionListItemComponent 
             key={option._id} 
             option={option} 
@@ -67,6 +97,7 @@ export const QuestionListItemComponent: FC<IQuestionListItemComponent>
             questionType={currentQuestionType}
           />
         )}
+        
         <Box 
           display="flex" 
           justifyContent="center"
@@ -107,6 +138,9 @@ export const QuestionListItemComponent: FC<IQuestionListItemComponent>
           }}
           onSubmit={onUpdateQuestionSubmit}
           validate={questionFormValidate}
+          onFileUpload={onImageUpload}
+          isFileUploaded={image !== null}
+          hasImage={question.image !== null}
         />
       </Popup>
       <Popup 

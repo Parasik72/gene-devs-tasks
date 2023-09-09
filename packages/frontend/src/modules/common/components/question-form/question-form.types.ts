@@ -4,6 +4,7 @@ export interface IQuestionFormCreation {
 
 export interface IQuestionFormEditing {
   title: string;
+  removeImage?: boolean;
 }
 
 export enum QuestionFormActions {
@@ -33,4 +34,7 @@ export interface IQuestionFormComponent<T extends QuestionFormType> {
   data: T;
   validate: (values: QuestionType) => {};
   onSubmit: (values: QuestionType) => Promise<any>;
+  onFileUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isFileUploaded?: boolean;
+  hasImage?: boolean;
 }

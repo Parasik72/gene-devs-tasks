@@ -1,3 +1,4 @@
+import { BACKEND_URL } from '../constants/app.consts';
 import { QuestionTypes } from '../types/question.types';
 
 export const getQuestionTypeByText = (text: string): QuestionTypes => {
@@ -9,4 +10,8 @@ export const getQuestionTypeByText = (text: string): QuestionTypes => {
   default:
     return QuestionTypes.MULTIPLE_CHOICE;
   }
+};
+
+export const getFullImgPathOnBackend = (imgSrc: string) => {
+  return `${BACKEND_URL}\\${imgSrc}`;
 };

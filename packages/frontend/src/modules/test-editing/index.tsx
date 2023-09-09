@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material';
+import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { ITestEditingParams } from './test-editing.types';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useGetAllQuestionTypes, useGetTestForEdit } from '../common/queries/tests.query';
@@ -24,19 +24,33 @@ export const TestEditingPageComponent = () => {
   const { data: questionTypesData, isLoading: isQuestionTypesLoading } = useGetAllQuestionTypes();
   const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false);
   const [isEditTestOpen, setIsEditTestOpen] = useState(false);
+  const [image, setImage] = useState<File | null>(null);
   const editTestmutation = useEditTest(testData?._id || '', () => setIsEditTestOpen(false));
-  const addQuestionMutation = useAddQuestion(testData?._id || '', () => setIsAddQuestionOpen(false));
+  const addQuestionMutation = useAddQuestion(testData?._id || '', () => {
+    setIsAddQuestionOpen(false);
+    setImage(null);
+  });
   const removeTestMutation = useRemoveTest(() => navigate(HISTORY_KEYS.ROOT));
   const navigate = useNavigate();
 
   const onAddQuestionSubmit = async (values: IQuestionFormCreation) => {
-    addQuestionMutation.mutate({ title: values.title, testId: testId! });
+    addQuestionMutation.mutate({ title: values.title, testId: testId!, image });
   };
   const onEditTestSubmit = async (values: ITestFormEditing) => {
     editTestmutation.mutate({ data: values, testId: testId! });
   };
   const onRemoveTest = () => {
     removeTestMutation.mutate({ testId: testId! });
+  };
+  const onImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || e.target.files.length === 0) {
+      return;
+    }
+    setImage(e.target.files[0]);
+  };
+  const onAddQuestionClick = () => {
+    setIsAddQuestionOpen(true);
+    setImage(null);
   };
 
   const isLoading = isTestLoading || isQuestionTypesLoading;
@@ -70,7 +84,7 @@ export const TestEditingPageComponent = () => {
                 gap={SPACESNUMBER.s}
                 flexDirection={{ sm: 'row', xs: 'column' }}
               >
-                <Button variant='contained' onClick={() => setIsAddQuestionOpen(true)}>
+                <Button variant='contained' onClick={onAddQuestionClick}>
                     Add question
                 </Button>
                 <Button variant='contained' onClick={() => setIsEditTestOpen(true)}>
@@ -104,7 +118,10 @@ export const TestEditingPageComponent = () => {
       )}
       <Popup 
         isOpen={isAddQuestionOpen} 
-        close={() => setIsAddQuestionOpen(false)} 
+        close={() => {
+          setIsAddQuestionOpen(false);
+          setImage(null);
+        }} 
         title='Add question'
         width={500}
       >
@@ -115,6 +132,8 @@ export const TestEditingPageComponent = () => {
           }}
           onSubmit={onAddQuestionSubmit}
           validate={questionFormValidate}
+          onFileUpload={onImageUpload}
+          isFileUploaded={image !== null}
         />
       </Popup>
       {testData && (

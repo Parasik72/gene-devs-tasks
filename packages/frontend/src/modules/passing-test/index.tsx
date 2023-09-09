@@ -51,7 +51,12 @@ export const PassingTestPageComponent = () => {
             padding: SPACES.m
           }}>
             <Stack spacing={SPACESNUMBER.m}>
-              <Box display="flex" justifyContent="space-between">
+              <Box 
+                display="flex" 
+                justifyContent="space-between"
+                flexDirection={{ sm: 'row', xs: 'column' }}
+                gap={SPACES.m}
+              >
                 <Typography variant='h4' fontWeight={WEIGHTS.bold}>Passing the test</Typography>
                 <TimerComponent time={time} setTime={setTime}/>
               </Box>

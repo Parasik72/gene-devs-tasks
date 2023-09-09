@@ -75,17 +75,33 @@ class TestsService {
   }
 
   async addQuestion(testId: string, dto: AddQuestionDto): Promise<IMessageFromServer> {
+    const formData = new FormData();
+    formData.append('title', dto.title);
+    if (dto.image) {
+      formData.append('image', dto.image);
+    }
     const response: AxiosResponse<IMessageFromServer> = await this.httpService.create({
       url: BACKEND_KEYS.ADD_QUESTION.replace(':testId', testId),
-      data: dto
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     }, true);
     return response.data;
   }
 
-  async updateQuestion(questionId: string, dto: UpdateQuestionDto): Promise<IMessageFromServer> {
+  async updateQuestion(questionId: string, dto: UpdateQuestionDto, removeCurrentImage: boolean)
+  : Promise<IMessageFromServer> {
+    const formData = new FormData();
+    if (dto.title) formData.append('title', dto.title);
+    if (dto.image) formData.append('image', dto.image);
+    const removeImageQuery = removeCurrentImage ? '?removeImage=removeImage' : '';
     const response: AxiosResponse<IMessageFromServer> = await this.httpService.patch({
-      url: BACKEND_KEYS.UPDATE_QUESTION.replace(':questionId', questionId),
-      data: dto
+      url: BACKEND_KEYS.UPDATE_QUESTION.replace(':questionId', questionId) + removeImageQuery,
+      data: formData,
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
     }, true);
     return response.data;
   }
