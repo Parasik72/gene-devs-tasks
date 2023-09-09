@@ -24,6 +24,7 @@ import { IQuestion } from './models/question.model';
 import { ITest } from './models/test.model';
 import { IUser } from '../user/models/user.model';
 import { IAssessment } from './models/assessment.model';
+import { shuffleArray } from '../functions/shuffle-array.function';
 
 export class TestService {
   constructor(private readonly testRepository: TestRepository) {}
@@ -257,5 +258,11 @@ export class TestService {
         update: { $push: { answers: answerId } }
       }
     };
+  }
+
+  randomizeQuestions(test: ITestWithOptions) {
+    const randomizedTest = { ...test };
+    randomizedTest.questions = shuffleArray(randomizedTest.questions);
+    return randomizedTest;
   }
 }
