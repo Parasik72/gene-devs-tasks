@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { MainLayoutComponent } from '../common/components/main-layout/main-layout.component';
 import { ITestData, ITestPassingParams } from './passing-test.types';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { Box, Button, Paper, Stack, Typography } from '@mui/material';
 import { WEIGHTS } from '../theme/fonts.const';
 import { HISTORY_KEYS } from '../common/constants/app-keys.constants';
 import { TestQuestionComponent } from '../common/components/test-question/test-question.component';
-import { storeTestData } from './passing-test.functions';
+import { getAtLeastOneSelected, storeTestData } from './passing-test.functions';
 import { useSubmitTest } from '../common/mutations/tests/tests.mutation';
 import { LoaderComponent } from '../common/components/loader/loader.component';
 import { TimerComponent } from '../common/components/timer/timer.component';
@@ -19,7 +19,8 @@ export const PassingTestPageComponent = () => {
   const { data, isLoading } = useGetTestForPassing(testId || '');
   const [testData, setTestData] = useState<ITestData>({ answers: [] });
   const navigate = useNavigate();
-  const callback = storeTestData(testData, setTestData);
+  const callback = useMemo(() => storeTestData(testData, setTestData), [testData, setTestData]);
+  const atLeastOneSelected = useMemo(() => getAtLeastOneSelected(testData), [testData]);
 
   const onSubmitTest = () => {
     mutation.mutate({ testId: testId!, answers: testData.answers, timer: time / 1000 });
@@ -27,6 +28,7 @@ export const PassingTestPageComponent = () => {
   const mutation = useSubmitTest((assessmentId: string) => {
     navigate(HISTORY_KEYS.ASSESSMENT.replace(':assessmentId', assessmentId));
   });
+
 
   return (
     <MainLayoutComponent>
@@ -60,7 +62,11 @@ export const PassingTestPageComponent = () => {
             if (typeof question === 'string') return <></>;
             return <TestQuestionComponent key={question._id} question={question} callback={callback} />;
           })}
-          <Button variant='contained' onClick={onSubmitTest}>
+          <Button 
+            variant='contained' 
+            onClick={onSubmitTest}
+            disabled={!atLeastOneSelected}
+          >
             Submit the test
           </Button>
         </Box>

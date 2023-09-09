@@ -41,3 +41,11 @@ export const useGetAssessmentsByTestId = (testId: string) => {
     { onError: onErrorAlert }
   );
 };
+
+export const useGetAllQuestionTypes = () => {
+  return useQuery(
+    QUERY_KEYS.QUESTION_TYPES, 
+    async () => testsService.getAllQuestionTypes(),
+    { onError: onErrorAlert }
+  );
+};

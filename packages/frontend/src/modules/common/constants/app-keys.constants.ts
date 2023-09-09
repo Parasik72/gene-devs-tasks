@@ -8,7 +8,8 @@ export const QUERY_KEYS = {
   EDIT_TEST: 'EDIT_TEST',
   PASSING_TEST: 'PASSING_TEST',
   ASSESSMENT: 'ASSESSMENT',
-  ASSESSMENTS: 'ASSESSMENTS'
+  ASSESSMENTS: 'ASSESSMENTS',
+  QUESTION_TYPES: 'QUESTION_TYPES'
 };
 
 export const BACKEND_KEYS = {
@@ -31,6 +32,8 @@ export const BACKEND_KEYS = {
   SUBMIT_TEST: 'tests/pass-test/:testId',
   ONE_ASSESSMENT: 'tests/assessment/:assessmentId',
   ASSESSMENTS: 'tests/assessments/:testId',
+  QUESTION_TYPES: 'tests/question-types',
+  CHANGE_QUESTION_TYPE: 'tests/change-question-type/:questionId',
 };
 
 export const ROUTER_KEYS = {

@@ -1,5 +1,10 @@
 import { TestForEditReceivingDto, TestForPassingReceivingDto, TestsReceivingDto } from './dto/tests-from-server.dto';
 
+export interface IQuestionType {
+  _id: string;
+  text: string;
+}
+
 export interface IOption {
   _id: string;
   text: string;
@@ -10,6 +15,7 @@ export interface IQuestion {
   _id: string;
   title: string;
   options: IOption[];
+  questionType: IQuestionType;
 }
 
 class TestModel {

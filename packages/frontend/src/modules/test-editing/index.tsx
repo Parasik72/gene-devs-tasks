@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Box, Button, Container, Paper, Stack, Typography } from '@mui/material';
 import { ITestEditingParams } from './test-editing.types';
 import { useNavigate, useParams } from 'react-router-dom';
-import { useGetTestForEdit } from '../common/queries/tests.query';
+import { useGetAllQuestionTypes, useGetTestForEdit } from '../common/queries/tests.query';
 import { SPACES, SPACESNUMBER } from '../theme/spaces.const';
 import { QuestionListItemComponent } from '../common/components/question-list-item/question-list-item.component';
 import { Popup } from '../common/popup/popup.component';
@@ -20,11 +20,12 @@ import { LoaderComponent } from '../common/components/loader/loader.component';
 
 export const TestEditingPageComponent = () => {
   const { testId } = useParams<ITestEditingParams>();
-  const { data, isLoading } = useGetTestForEdit(testId || '');
+  const { data: testData, isLoading: isTestLoading } = useGetTestForEdit(testId || '');
+  const { data: questionTypesData, isLoading: isQuestionTypesLoading } = useGetAllQuestionTypes();
   const [isAddQuestionOpen, setIsAddQuestionOpen] = useState(false);
   const [isEditTestOpen, setIsEditTestOpen] = useState(false);
-  const editTestmutation = useEditTest(() => setIsEditTestOpen(false));
-  const addQuestionMutation = useAddQuestion(() => setIsAddQuestionOpen(false));
+  const editTestmutation = useEditTest(testData?._id || '', () => setIsEditTestOpen(false));
+  const addQuestionMutation = useAddQuestion(testData?._id || '', () => setIsAddQuestionOpen(false));
   const removeTestMutation = useRemoveTest(() => navigate(HISTORY_KEYS.ROOT));
   const navigate = useNavigate();
 
@@ -38,12 +39,14 @@ export const TestEditingPageComponent = () => {
     removeTestMutation.mutate({ testId: testId! });
   };
 
+  const isLoading = isTestLoading || isQuestionTypesLoading;
+
   return (
     <MainLayoutComponent>
       {isLoading && (
         <LoaderComponent />
       )}
-      {!isLoading && data && (
+      {!isLoading && testData && questionTypesData && (
         <Box 
           marginTop={SPACES.xxl} 
           display="flex"
@@ -59,8 +62,8 @@ export const TestEditingPageComponent = () => {
             padding: SPACES.m
           }}>
             <Stack spacing={SPACESNUMBER.m}>
-              <Typography variant='h4'><b>Title:</b> {data.title}</Typography>
-              <Typography variant='h5'><b>Description:</b> {data.description}</Typography>
+              <Typography variant='h4'><b>Title:</b> {testData.title}</Typography>
+              <Typography variant='h5'><b>Description:</b> {testData.description}</Typography>
               <Box
                 display="flex"
                 justifyContent="center"
@@ -84,9 +87,17 @@ export const TestEditingPageComponent = () => {
             flexDirection="column"
             gap={SPACESNUMBER.s}
           >
-            {data.questions.map((question, index) => {
+            {testData.questions.map((question, index) => {
               if (typeof question === 'string') return <></>;
-              return <QuestionListItemComponent key={question._id} question={question} number={index + 1}/>;
+              return (
+                <QuestionListItemComponent 
+                  key={question._id} 
+                  question={question} 
+                  questionTypes={questionTypesData}
+                  number={index + 1}
+                  testId={testData._id}
+                />
+              );
             })}
           </Box>
         </Box> 
@@ -106,7 +117,7 @@ export const TestEditingPageComponent = () => {
           validate={questionFormValidate}
         />
       </Popup>
-      {data && (
+      {testData && (
         <Popup 
           isOpen={isEditTestOpen} 
           close={() => setIsEditTestOpen(false)} 
@@ -117,8 +128,8 @@ export const TestEditingPageComponent = () => {
             data={{
               type: TestFormActions.EDITING,
               initialValues: testEditingFormInitialVariables({
-                title: data.title,
-                description: data.description
+                title: testData.title,
+                description: testData.description
               })
             }}
             onSubmit={onEditTestSubmit}

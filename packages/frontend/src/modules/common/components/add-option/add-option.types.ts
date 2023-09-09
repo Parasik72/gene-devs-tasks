@@ -1,5 +1,6 @@
 export interface IAddOptionComponent {
   questionId: string;
+  testId: string;
   callback?: () => void;
 }
 
