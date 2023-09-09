@@ -44,7 +44,8 @@ class TestController {
     if (!test) {
       throw new HttpException('The test was not found', 404);
     }
-    return this.testService.getOneTestWithOptionsById(test._id.toHexString());
+    const testWithOptions = await this.testService.getOneTestWithOptionsById(test._id.toHexString());
+    return this.testService.randomizeQuestions(testWithOptions);
   }
 
   async getOneTestForEditingByIdAgg(req: express.Request<GetOneTestByIdParams>): Promise<IFullTest> {
