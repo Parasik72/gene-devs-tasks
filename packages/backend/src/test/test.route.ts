@@ -18,6 +18,7 @@ import { passTestValidator } from './validators/pass-test.validator';
 import { getAssessmentsValidator } from './validators/get-assessments.validator';
 import { getOneFullTestByIdValidator } from './validators/get-one-full-test-by-id.validator';
 import { getAssessmentValidator } from './validators/get-assessment.validator';
+import { changeQuestionTypeValidator } from './validators/change-question-type.validator';
 
 const testsRouter = express();
 
@@ -45,6 +46,12 @@ testsRouter.get(
   isLogedIn,
   getOneFullTestByIdValidator,
   tryCatchController(testController.getOneTestForEditingByIdAgg.bind(testController))
+);
+
+testsRouter.get(
+  '/question-types',
+  isLogedIn,
+  tryCatchController(testController.getAllQuestionTypes.bind(testController))
 );
 
 testsRouter.get(
@@ -84,6 +91,14 @@ testsRouter.patch(
   updateQuestionValidator,
   validateRequest,
   tryCatchController(testController.updateQuestion.bind(testController))
+);
+
+testsRouter.patch(
+  '/change-question-type/:questionId',
+  isLogedIn,
+  changeQuestionTypeValidator,
+  validateRequest,
+  tryCatchController(testController.changeQuestionType.bind(testController))
 );
 
 testsRouter.post(

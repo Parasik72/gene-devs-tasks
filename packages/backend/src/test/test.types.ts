@@ -1,6 +1,19 @@
 import { ObjectId } from 'mongodb';
 import { ITest } from './models/test.model';
 
+export enum QuestionTypes {
+  MULTIPLE_CHOICE = 'Multiple choice',
+  SINGLE_CHOICE = 'Single choice',
+  TRUE_FALSE = 'True/False'
+}
+
+export enum TrueFalseOptions {
+  TRUE = 'True',
+  FALSE = 'False'
+}
+
+export const DEFAULT_QUESTION_TYPE = QuestionTypes.MULTIPLE_CHOICE;
+
 export interface ICreateTest {
   title: string;
   description: string;
@@ -9,6 +22,7 @@ export interface ICreateTest {
 
 export interface ICreateQuestion {
   title: string;
+  questionType: ObjectId;
 }
 
 export interface IBulkWriteCreateOption {
@@ -56,7 +70,21 @@ export interface IBulkWriteAddOptionToQuestion {
 export interface IBulkWriteAddAnswerToQuestion {
   updateOne: {
     filter: { _id: ObjectId },
-    update: { $push: { answers: ObjectId; } }
+    update: { $push: { answers: ObjectId; } } |
+            { $set: { answers: ObjectId[]; }; };
+  }
+}
+
+export interface IBulkWriteChangeQuestionType {
+  updateOne: {
+    filter: { _id: ObjectId },
+    update: {
+      $set: {
+          questionType: ObjectId;
+          answers: ObjectId[];
+          options?: ObjectId[];
+      };
+    };
   }
 }
 

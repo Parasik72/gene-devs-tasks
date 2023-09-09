@@ -1,11 +1,14 @@
 import mongoose from 'mongoose';
 import { IOption, Option } from './option.model';
 import { BaseModel } from '../../config/base.model';
+import { ObjectId } from 'mongodb';
+import { QuestionType } from './question-type.model';
 
 export interface IQuestion extends BaseModel {
   title: string;
   options: IOption[];
   answers: IOption[];
+  questionType: ObjectId;
 }
 
 export const QuestionSchema = new mongoose.Schema<IQuestion>({
@@ -26,7 +29,11 @@ export const QuestionSchema = new mongoose.Schema<IQuestion>({
       ref: Option.name,
       default: []
     }
-  ]
+  ],
+  questionType: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: QuestionType.name,
+  }
 });
 
 QuestionSchema.pre('deleteOne', async function (next) {
