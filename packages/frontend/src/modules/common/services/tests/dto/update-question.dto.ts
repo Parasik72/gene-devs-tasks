@@ -1,3 +1,4 @@
 export interface UpdateQuestionDto {
-  title: string;
+  title: string | null;
+  image: File | null;
 }

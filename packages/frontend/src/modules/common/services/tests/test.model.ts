@@ -16,6 +16,7 @@ export interface IQuestion {
   title: string;
   options: IOption[];
   questionType: IQuestionType;
+  image: string | null
 }
 
 class TestModel {

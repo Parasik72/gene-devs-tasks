@@ -63,7 +63,7 @@ export const useRemoveAnswer = (testId: string, callback?: () => void) => {
 export const useAddQuestion = (testId: string, callback?: () => void) => {
   const queryClient = useQueryClient();
   const addQuestionFunc = (dto: AddQuestionSending) => 
-    testsService.addQuestion(dto.testId, { title: dto.title });
+    testsService.addQuestion(dto.testId, { title: dto.title, image: dto.image });
   const onSuccess = () => {
     queryClient.invalidateQueries([QUERY_KEYS.EDIT_TEST, testId]);
     if (callback) callback();
@@ -74,7 +74,11 @@ export const useAddQuestion = (testId: string, callback?: () => void) => {
 export const useUpdateQuestion = (testId: string, callback?: () => void) => {
   const queryClient = useQueryClient();
   const updateQuestionFunc = (dto: UpdateQuestionSending) => 
-    testsService.updateQuestion(dto.questionId, { title: dto.title });
+    testsService.updateQuestion(
+      dto.questionId, 
+      { title: dto.title, image: dto.image }, 
+      dto.removeCurrentImage
+    );
   const onSuccess = () => {
     queryClient.invalidateQueries([QUERY_KEYS.EDIT_TEST, testId]);
     if (callback) callback();

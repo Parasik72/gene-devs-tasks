@@ -22,11 +22,14 @@ export interface RemoveAnswerSending {
 export interface AddQuestionSending {
   testId: string;
   title: string;
+  image: File | null;
 }
 
 export interface UpdateQuestionSending {
   questionId: string;
-  title: string;
+  title: string | null;
+  image: File | null;
+  removeCurrentImage: boolean
 }
 
 export interface AddOptionSending {
