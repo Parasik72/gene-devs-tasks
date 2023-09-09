@@ -38,9 +38,13 @@ class TestsService {
   }
 
   async updateTest(testId: string, dto: UpdateTestDto): Promise<IMessageFromServer> {
+    const data = {
+      description: dto.description,
+      ...(dto.title !== null && { title: dto.title }),
+    };
     const response: AxiosResponse<IMessageFromServer> = await this.httpService.patch({
       url: BACKEND_KEYS.UPDATE_TEST.replace(':testId', testId),
-      data: dto
+      data
     }, true);
     return response.data;
   }

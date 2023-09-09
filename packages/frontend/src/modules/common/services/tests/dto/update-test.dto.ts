@@ -1,4 +1,4 @@
 export interface UpdateTestDto {
-  title: string;
+  title: string | null;
   description: string;
 }
