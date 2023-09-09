@@ -6,5 +6,7 @@ declare namespace NodeJS {
     JWT_ACCESS_SECRET?: string;
     JWT_ACCESS_EXPIRATION?: string;
     FRONTEND_URL?: string;
+    STATIC_PATH?: string;
+    PHOTOS_PATH?: string;
   }
 }

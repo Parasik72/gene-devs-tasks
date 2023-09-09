@@ -31,11 +31,15 @@ import { GetOneAssessmentParams } from './params/get-one-assessment.params';
 import { IQeustionType } from './models/question-type.model';
 import { ChangeQuestionTypeParams } from './params/change-question-type.params';
 import { ChangeQuestionTypeDto } from './dto/change-question-type.dto';
+import { FileUploaderService } from '../file-uploader/file-uploader.service';
+import { UploadedFile } from 'express-fileupload';
+import { PHOTOS_PATH } from '../constants/paths.constants';
 
 class TestController {
   constructor(
     private readonly testService: TestService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
+    private readonly fileUplaoderService: FileUploaderService,
   ) {}
 
   async getAllTests(): Promise<ITest[]> {
@@ -119,7 +123,12 @@ class TestController {
     if (!questionType) {
       throw new HttpException('Default question type was not found', 404);
     }
-    const question = await this.testService.createQuestion({ title: req.body.title, questionType: questionType._id });
+    let image = null;
+    if (req?.files?.image) {
+      image = this.fileUplaoderService.uploadFile(req.files.image as UploadedFile, PHOTOS_PATH);
+    }
+    const question = 
+      await this.testService.createQuestion({ title: req.body.title, questionType: questionType._id, image });
     const prepareAddQuestion = this.testService.prepareTestForAddQuestion(test._id, question._id);
     await this.testService.addQuestionToTest(prepareAddQuestion);
     return { message: 'The question has been added successfully!' };
@@ -136,12 +145,24 @@ class TestController {
     if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant add options to this question', 403);
     }
-    const questionWithTitle = 
+    let title = undefined;
+    if (req.body.title) {
+      const questionWithTitle = 
       await this.testService.getOneQuestionByTitleAndTestId(req.body.title, test!._id.toHexString());
-    if (questionWithTitle) {
-      throw new HttpException('This title is already in use', 400);
+      if (questionWithTitle) {
+        throw new HttpException('This title is already in use', 400);
+      }
+      title = req.body.title;
     }
-    await this.testService.updateOneQuestionById({ title: req.body.title }, question._id.toHexString());
+    let image = undefined;
+    if ((req?.files?.image || req.query?.removeImage) && question.image) {
+      this.fileUplaoderService.deleteFile(question.image);
+      if (req.query?.removeImage) image = null;
+    }
+    if (req?.files?.image) {
+      image = this.fileUplaoderService.uploadFile(req.files.image as UploadedFile, PHOTOS_PATH);
+    }
+    await this.testService.updateOneQuestionById({ title: req.body.title, image }, question._id.toHexString());
     return { message: 'The question has been updated successfully!' };
   }
 
@@ -293,6 +314,9 @@ class TestController {
     if (!this.testService.isUserTestCreator(test, user!)) {
       throw new HttpException('You cant delete this question', 403);
     }
+    if (question.image) {
+      this.fileUplaoderService.deleteFile(question.image);
+    }
     await this.testService.deleteOneQuestionByIdAndTestId(
       question._id.toHexString(),
       test._id.toHexString()
@@ -370,5 +394,6 @@ class TestController {
 
 export default new TestController(
   new TestService(new TestRepository()),
-  new UserService(new UserRepository())
+  new UserService(new UserRepository()),
+  new FileUploaderService()
 );

@@ -23,6 +23,7 @@ export interface ICreateTest {
 export interface ICreateQuestion {
   title: string;
   questionType: ObjectId;
+  image: string | null;
 }
 
 export interface IBulkWriteCreateOption {
@@ -94,7 +95,8 @@ export interface IUpdateTest {
 }
 
 export interface IUpdateQuestion {
-  title: string;
+  title?: string;
+  image?: string | null;
 }
 
 export interface IUserAnswer {
