@@ -10,9 +10,10 @@ import { IAddOptionComponent, IAddOptionFormCreation } from './add-option.types'
 
 export const AddOptionComponent: FC<IAddOptionComponent> = ({
   questionId,
-  callback
+  callback,
+  testId
 }) => {
-  const mutation = useAddOption(callback);
+  const mutation = useAddOption(testId, callback);
   const onSubmit = async (values: IAddOptionFormCreation) => {
     mutation.mutate({ questionId, text: values.text });
   };

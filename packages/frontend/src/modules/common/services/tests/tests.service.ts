@@ -7,7 +7,7 @@ import {
   TestForPassingReceivingDto, 
   TestsReceivingDto 
 } from './dto/tests-from-server.dto';
-import TestModel, { createTestModel } from './test.model';
+import TestModel, { IQuestionType, createTestModel } from './test.model';
 import { CreateTestDto } from './dto/create-test.dto';
 import { AddAnswerDto } from './dto/add-answer.dto';
 import { IMessageFromServer } from '../http.interfaces';
@@ -17,6 +17,7 @@ import { UpdateQuestionDto } from './dto/update-question.dto';
 import { AddOptionDto } from './dto/add-option.dto';
 import { SubmitTestDto } from './dto/submit-test.dto';
 import AssessmentModel, { createAssessmentModel } from './assessment.model';
+import { ChangeQuestionTypeDto } from './dto/change-question-type.dto';
 
 class TestsService {
   constructor(private httpService: HttpService) {}
@@ -138,6 +139,22 @@ class TestsService {
       url: BACKEND_KEYS.ASSESSMENTS.replace(':testId', testId)
     }, true);
     return response.data.map((assessment) => createAssessmentModel(assessment)); 
+  }
+
+  async getAllQuestionTypes(): Promise<IQuestionType[]> {
+    const response: AxiosResponse<IQuestionType[]> = await this.httpService.get({
+      url: BACKEND_KEYS.QUESTION_TYPES
+    }, true);
+    return response.data;
+  }
+
+  async changeQuestionType(questionId: string, dto: ChangeQuestionTypeDto)
+  : Promise<IMessageFromServer> {
+    const response: AxiosResponse<IMessageFromServer> = await this.httpService.patch({
+      url: BACKEND_KEYS.CHANGE_QUESTION_TYPE.replace(':questionId', questionId),
+      data: dto
+    }, true);
+    return response.data;
   }
 }
 

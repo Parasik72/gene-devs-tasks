@@ -1,12 +1,18 @@
 import { ITestData } from './passing-test.types';
 
+export enum StoreDataAction {
+  TO_ADD,
+  TO_REMOVE,
+  SET
+}
+
 export const storeTestData = (
   testData: ITestData, 
   setTestData: (value: React.SetStateAction<ITestData>) => void
 ) =>
-  (questionId: string, optionId: string, toAdd: boolean) => {
+  (questionId: string, optionId: string, action: StoreDataAction) => {
     const answer = testData.answers.find((item) => item.questionId === questionId);
-    if (!answer && toAdd) {
+    if (!answer && (action === StoreDataAction.TO_ADD || StoreDataAction.SET)) {
       return setTestData((prev) => ({
         answers: [
           ...prev.answers,
@@ -14,21 +20,17 @@ export const storeTestData = (
         ]
       }));
     } else if (!answer) return;
-    if (toAdd) {
-      return setTestData((prev) => ({
-        answers: prev.answers.map((item) => item.questionId === answer.questionId
-          ? { 
-            ...item, 
-            selected: [...item.selected, optionId] 
-          }
-          : item)}));
-    }
     return setTestData((prev) => ({
       answers: prev.answers.map((item) => item.questionId === answer.questionId
         ? { 
           ...item, 
-          selected: answer.selected.filter((item) => item !== optionId)
+          selected: 
+            action === StoreDataAction.TO_REMOVE ? answer.selected.filter((item) => item !== optionId)
+              : action === StoreDataAction.TO_ADD ? [...item.selected, optionId] : [optionId] 
         }
         : item
       )}));
   };
+
+export const getAtLeastOneSelected = (testData: ITestData) => 
+  testData.answers.find((answer) => answer.selected.length > 0) !== undefined;

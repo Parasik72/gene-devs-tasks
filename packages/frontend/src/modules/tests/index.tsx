@@ -41,16 +41,18 @@ export const TestsPageComponent = () => {
           justifyContent='space-between'
           flexDirection={{ sm: 'row', xs: 'column' }}
           gap={SPACES.m}
-          zIndex={1}
         >
           <Typography 
             variant='h4' 
             alignSelf={{ sm: 'start', xs: 'center' }}
+            zIndex={1}
           >
             All the tests
           </Typography>
           {user && user.isAuth && (
-            <Button variant='contained' onClick={onTestCreationClick}>
+            <Button variant='contained' onClick={onTestCreationClick} sx={{
+              zIndex: 1
+            }}>
               Create test
             </Button>
           )}

@@ -1,10 +1,12 @@
 import React, { FC, useState } from 'react';
-import { Box, Card, Checkbox, Typography } from '@mui/material';
+import { Box, Card, Checkbox, Radio, Typography } from '@mui/material';
 import { SPACESNUMBER } from '../../../theme/spaces.const';
 import { ITestOptionComponent } from './test-option.types';
+import { QuestionTypes } from '../../types/question.types';
 
 export const TestOptionComponent: FC<ITestOptionComponent> = ({
   option,
+  questionType,
   callback
 }) => {
   const [isChecked, setIsChecked] = useState(false);
@@ -19,7 +21,11 @@ export const TestOptionComponent: FC<ITestOptionComponent> = ({
         display="flex" 
         gap={SPACESNUMBER.xxs}
       >
-        <Checkbox checked={isChecked} onChange={onChange}/>
+        {
+          questionType === QuestionTypes.MULTIPLE_CHOICE 
+            ? <Checkbox checked={isChecked} onChange={onChange}/>
+            : <Radio value={option._id} />  
+        }
         <Typography variant='h5' alignSelf="center">{option.text}</Typography>
       </Box>
     </Card>

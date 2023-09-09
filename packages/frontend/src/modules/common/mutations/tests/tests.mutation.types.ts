@@ -51,3 +51,8 @@ export interface SubmitTestSending {
   testId: string;
   timer: number;
 }
+
+export interface ChangeQuestionTypeSending {
+  questionId: string;
+  questionTypeId: string;
+}
