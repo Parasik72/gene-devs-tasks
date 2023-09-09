@@ -5,6 +5,7 @@ import {
   IBulkWriteAddAnswerToQuestion,
   IBulkWriteAddOptionToQuestion,
   IBulkWriteAddQuestionToTest,
+  IBulkWriteChangeQuestionType,
   IBulkWriteCreateOption, 
   IBulkWriteCreateQuestion, 
   ICreateOption, 
@@ -17,7 +18,9 @@ import {
   ITestWithQuestions, 
   IUpdateQuestion, 
   IUpdateTest,
-  IUserAnswer
+  IUserAnswer,
+  QuestionTypes,
+  TrueFalseOptions
 } from './test.types';
 import { IOption } from './models/option.model';
 import { IQuestion } from './models/question.model';
@@ -25,6 +28,7 @@ import { ITest } from './models/test.model';
 import { IUser } from '../user/models/user.model';
 import { IAssessment } from './models/assessment.model';
 import { shuffleArray } from '../functions/shuffle-array.function';
+import { IQeustionType } from './models/question-type.model';
 
 export class TestService {
   constructor(private readonly testRepository: TestRepository) {}
@@ -39,6 +43,18 @@ export class TestService {
 
   async getOneTestForEditingByIdAgg(testId: string): Promise<IFullTest> {
     return (await this.testRepository.getOneTestForEditingByIdAgg(testId))[0];
+  }
+
+  async getAllQuestionTypes(): Promise<IQeustionType[]> {
+    return this.testRepository.getAllQuestionTypes();
+  }
+
+  async getOneQuestionTypeById(questionTypeId: string): Promise<IQeustionType | null> {
+    return this.testRepository.getOneQuestionTypeById(questionTypeId);
+  }
+  
+  async getOneQuestionTypeByText(text: string): Promise<IQeustionType | null> {
+    return this.testRepository.getOneQuestionTypeByText(text);
   }
 
   async getOneById(id: string): Promise<ITest | null> {
@@ -136,6 +152,10 @@ export class TestService {
     return this.testRepository.addAnswerToQuestion(data);
   }
 
+  async changeQuestionType(data: IBulkWriteChangeQuestionType) {
+    return this.testRepository.changeQuestionType(data);
+  }
+
   async getOneOptionById(optionId: string): Promise<IOption | null> {
     return this.testRepository.getOneOptionById(optionId);
   }
@@ -201,6 +221,32 @@ export class TestService {
     });
   }
 
+  async prepareQuestionForChangeQuestionType(questionId: ObjectId, questionType: IQeustionType)
+  : Promise<IBulkWriteChangeQuestionType> {
+    if (questionType.text === QuestionTypes.TRUE_FALSE) {
+      const trueOption = await this.testRepository.createOption({ text: TrueFalseOptions.TRUE });
+      const falseOption = await this.testRepository.createOption({ text: TrueFalseOptions.FALSE });
+      return {
+        updateOne: {
+          filter: { _id: questionId },
+          update: { 
+            $set: { 
+              questionType: questionType._id, 
+              answers: [], 
+              options: [trueOption._id, falseOption._id]
+            } 
+          }
+        }
+      };
+    }
+    return {
+      updateOne: {
+        filter: { _id: questionId },
+        update: { $set: { questionType: questionType._id, answers: [] } }
+      }
+    };
+  }
+
   isUserTestCreator(test: ITest, user: IUser): boolean {
     return test.createdBy.toHexString() === user._id.toHexString();
   }
@@ -215,6 +261,18 @@ export class TestService {
 
   isTestEmpty(test: ITest): boolean {
     return test.questions.length === 0;
+  }
+
+  isQuestionTypeTheSame(question: IQuestion, newQuestionType: string): boolean {
+    return question.questionType.toHexString() === newQuestionType;
+  }
+
+  canAddOptionForQuestion(questionType: IQeustionType): boolean {
+    return questionType.text !== QuestionTypes.TRUE_FALSE;
+  }
+
+  canRemoveOptionInQuestion(questionType: IQeustionType): boolean {
+    return questionType.text !== QuestionTypes.TRUE_FALSE;
   }
 
   prepareOptionsForCreation(options: IOption[]): IBulkWriteCreateOption[] {
@@ -251,11 +309,19 @@ export class TestService {
     };
   }
 
-  prepareQuestionForAddAnswer(questionId: ObjectId, answerId: ObjectId): IBulkWriteAddAnswerToQuestion {
+  prepareQuestionForAddAnswer(questionId: ObjectId, answerId: ObjectId, questionTypeText: string): IBulkWriteAddAnswerToQuestion {
+    if (questionTypeText === QuestionTypes.MULTIPLE_CHOICE) {
+      return {
+        updateOne: {
+          filter: { _id: questionId },
+          update: { $push: { answers: answerId } }
+        }
+      };
+    }
     return {
       updateOne: {
         filter: { _id: questionId },
-        update: { $push: { answers: answerId } }
+        update: { $set: { answers: [answerId] } } 
       }
     };
   }

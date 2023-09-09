@@ -1,6 +1,5 @@
 import mongoose from 'mongoose';
 import { BaseModel } from '../../config/base.model';
-import { ObjectId } from 'mongodb';
 
 export interface IOption extends BaseModel {
   text: string;

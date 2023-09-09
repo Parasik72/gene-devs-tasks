@@ -25,9 +25,12 @@ import { PassTestParams } from './params/pass-test.params';
 import { PassTestDto } from './dto/pass-test.dto';
 import { GetAssessmentsParams } from './params/get-assessments.params';
 import { ITest } from './models/test.model';
-import { IAssessmentWithTestAndUser, IFullTest, IMessage, ITestWithOptions } from './test.types';
+import { DEFAULT_QUESTION_TYPE, IAssessmentWithTestAndUser, IFullTest, IMessage, ITestWithOptions } from './test.types';
 import { IAssessment } from './models/assessment.model';
 import { GetOneAssessmentParams } from './params/get-one-assessment.params';
+import { IQeustionType } from './models/question-type.model';
+import { ChangeQuestionTypeParams } from './params/change-question-type.params';
+import { ChangeQuestionTypeDto } from './dto/change-question-type.dto';
 
 class TestController {
   constructor(
@@ -58,6 +61,10 @@ class TestController {
       throw new HttpException('You cant get the full test', 403);
     }
     return this.testService.getOneTestForEditingByIdAgg(test._id.toHexString());
+  }
+
+  async getAllQuestionTypes(): Promise<IQeustionType[]> {
+    return this.testService.getAllQuestionTypes();
   }
 
   async createTest(req: express.Request<{}, {}, CreateTestDto>): Promise<ITest> {
@@ -108,7 +115,11 @@ class TestController {
     if (testWithQuestion) {
       throw new HttpException('The test with this question title is already in use', 400);
     }
-    const question = await this.testService.createQuestion({ title: req.body.title });
+    const questionType = await this.testService.getOneQuestionTypeByText(DEFAULT_QUESTION_TYPE);
+    if (!questionType) {
+      throw new HttpException('Default question type was not found', 404);
+    }
+    const question = await this.testService.createQuestion({ title: req.body.title, questionType: questionType._id });
     const prepareAddQuestion = this.testService.prepareTestForAddQuestion(test._id, question._id);
     await this.testService.addQuestionToTest(prepareAddQuestion);
     return { message: 'The question has been added successfully!' };
@@ -134,6 +145,28 @@ class TestController {
     return { message: 'The question has been updated successfully!' };
   }
 
+  async changeQuestionType(req: express.Request<ChangeQuestionTypeParams, {}, ChangeQuestionTypeDto>) {
+    const question = await this.testService.getOneQuestionById(req.params.questionId);
+    if (!question) {
+      throw new HttpException('The question was not found', 404);
+    }
+    const test = await this.testService.getOneByQuestionId(question._id.toHexString());
+    const user = await this.userService.getOneUserByEmail(req.user.email);
+    if (!this.testService.isUserTestCreator(test!, user!)) {
+      throw new HttpException('You cant chnage the question type for this question', 403);
+    }
+    const questionType = await this.testService.getOneQuestionTypeById(req.body.questionTypeId);
+    if (!questionType) {
+      throw new HttpException('The question type was not found', 404);
+    }
+    if (this.testService.isQuestionTypeTheSame(question, req.body.questionTypeId)) {
+      throw new HttpException('This question type is already in use for the question', 400);
+    }
+    const prepareQuestion = await this.testService.prepareQuestionForChangeQuestionType(question._id, questionType);
+    await this.testService.changeQuestionType(prepareQuestion);
+    return { message: 'The question type has been changed successfully!' };
+  }
+
   async addOption(req: express.Request<AddOptionParams, {}, AddOptionDto>)
   : Promise<IMessage> {
     const question = await this.testService.getOneQuestionById(req.params.questionId);
@@ -152,6 +185,10 @@ class TestController {
       );
     if (questionWithOption) {
       throw new HttpException('The question with this option title is already in use', 400);
+    }
+    const questionType = await this.testService.getOneQuestionTypeById(question.questionType.toHexString());
+    if (!this.testService.canAddOptionForQuestion(questionType!)) {
+      throw new HttpException('You cant add any options to the question with the current question type', 400);
     }
     const option = await this.testService.createOption({ text: req.body.text });
     const prepareAddOption = 
@@ -183,8 +220,9 @@ class TestController {
     if (isAnswerInQuestion) {
       throw new HttpException('This answer is already set', 400);
     }
+    const questionType = await this.testService.getOneQuestionTypeById(question.questionType.toHexString());
     const prepareQuestion = 
-      this.testService.prepareQuestionForAddAnswer(question._id, new ObjectId(req.body.optionId));
+      this.testService.prepareQuestionForAddAnswer(question._id, new ObjectId(req.body.optionId), questionType!.text);
     await this.testService.addAnswerToQuestion(prepareQuestion);
     return { message: 'The answer has been added successfully!' };
   }
@@ -203,6 +241,10 @@ class TestController {
     const user = await this.userService.getOneUserByEmail(req.user.email);
     if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant delete this option', 403);
+    }
+    const questionType = await this.testService.getOneQuestionTypeById(question.questionType.toHexString());
+    if (!this.testService.canRemoveOptionInQuestion(questionType!)) {
+      throw new HttpException('You cant remove any answers in the question with the current question type', 400);
     }
     await this.testService.deleteOneAnswerByIdAndQuestionId(
       answer._id.toHexString(),
@@ -225,6 +267,10 @@ class TestController {
     const user = await this.userService.getOneUserByEmail(req.user.email);
     if (!this.testService.isUserTestCreator(test!, user!)) {
       throw new HttpException('You cant delete this option', 403);
+    }
+    const questionType = await this.testService.getOneQuestionTypeById(question.questionType.toHexString());
+    if (!this.testService.canRemoveOptionInQuestion(questionType!)) {
+      throw new HttpException('You cant remove any options in the question with the current question type', 400);
     }
     await this.testService.deleteOneOptionByIdAndQuestionId(
       option._id.toHexString(),

@@ -5,6 +5,7 @@ import {
   IBulkWriteAddAnswerToQuestion,
   IBulkWriteAddOptionToQuestion,
   IBulkWriteAddQuestionToTest, 
+  IBulkWriteChangeQuestionType, 
   IBulkWriteCreateOption, 
   IBulkWriteCreateQuestion, 
   ICreateAssessment, 
@@ -35,6 +36,7 @@ import {
   getAssessmentByTestIdAndUserIdAgg 
 } from './aggregations/assessments.aggregations';
 import { getOneQuestionByIdAndOptionTitleAgg } from './aggregations/question.aggregations';
+import { IQeustionType, QuestionType } from './models/question-type.model';
 
 export class TestRepository {
   async getAllTests(): Promise<ITest[]> {
@@ -53,6 +55,18 @@ export class TestRepository {
     return Test.aggregate(
       getOneTestForEditingByIdAgg(testId)
     );
+  }
+
+  async getAllQuestionTypes(): Promise<IQeustionType[]> {
+    return QuestionType.find();
+  }
+
+  async getOneQuestionTypeById(questionTypeId: string): Promise<IQeustionType | null> {
+    return QuestionType.findById(questionTypeId);
+  }
+
+  async getOneQuestionTypeByText(text: string): Promise<IQeustionType | null> {
+    return QuestionType.findOne({ text });
   }
 
   async getOneById(testId: string): Promise<ITest | null> {
@@ -151,6 +165,10 @@ export class TestRepository {
   }
 
   async addAnswerToQuestion(data: IBulkWriteAddAnswerToQuestion) {
+    return Question.bulkWrite([data as any]);
+  }
+
+  async changeQuestionType(data: IBulkWriteChangeQuestionType) {
     return Question.bulkWrite([data as any]);
   }
 

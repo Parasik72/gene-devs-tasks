@@ -102,6 +102,20 @@ export const getOneTestWithOptionsByIdAgg =
       },
       { $unset: 'questions.answers' },
       {
+        $lookup: {
+          from: 'question-types',
+          localField: 'questions.questionType',
+          foreignField: '_id',
+          as: 'questions.questionType'
+        }
+      },
+      {
+        $unwind: {
+          path: '$questions.questionType',
+          preserveNullAndEmptyArrays: true
+        }
+      },
+      {
         $project: {
           _id: 1,
           title: 1,
@@ -207,6 +221,20 @@ export const getOneTestForEditingByIdAgg =
         }
       },
       { $unset: 'questions.answers' },
+      {
+        $lookup: {
+          from: 'question-types',
+          localField: 'questions.questionType',
+          foreignField: '_id',
+          as: 'questions.questionType'
+        }
+      },
+      {
+        $unwind: {
+          path: '$questions.questionType',
+          preserveNullAndEmptyArrays: true
+        }
+      },
       {
         $project: {
           _id: 1,
